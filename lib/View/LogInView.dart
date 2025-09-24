@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_app/Controller/LoginController.dart';
+import 'package:to_do_app/View/SignInView.dart';
 
 class LogInView extends StatefulWidget {
   const LogInView({super.key});
@@ -111,6 +112,31 @@ class _LoginViewState extends State<LogInView> {
                     child: const Text(
                       "Back",
                       style: TextStyle(fontSize: 18, color: Colors.black),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Already have an account?",
+                    style: TextStyle(fontSize: 14, color: Colors.white70),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignInView()),
+                      );
+                    },
+                    child: Text(
+                      "Sign In",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: const Color.fromARGB(255, 55, 101, 255),
+                        decoration: TextDecoration.underline,
+                      ),
                     ),
                   ),
                 ],
