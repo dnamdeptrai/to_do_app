@@ -6,13 +6,13 @@ void main() {
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SafeArea(child: Scaffold(body: demolayout())),
+      home: SafeArea(child: Scaffold(body: start())),
     ),
   );
 }
 
-class demolayout extends StatelessWidget {
-  const demolayout({super.key});
+class start extends StatelessWidget {
+  const start({super.key});
 
   @override
   Widget build(BuildContext context) {
