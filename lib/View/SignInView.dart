@@ -1,13 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:to_do_app/View/HomeView.dart';
-import 'package:to_do_app/main.dart';
+import 'package:to_do_app/Controller/SignInController.dart';
 
-class SignInView extends StatelessWidget {
+class SignInView extends StatefulWidget {
   const SignInView({super.key});
 
   @override
+  State<SignInView> createState() => _SignInViewState();
+}
+
+class _SignInViewState extends State<SignInView> {
+  
+  final emailCtl = TextEditingController();
+  final phoneCtl = TextEditingController();
+  final passwordCtl = TextEditingController();
+  final cfPasswordCtl = TextEditingController();
+
+  late SignInController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = SignInController(
+      emailCtl: emailCtl,
+      phoneCtl: phoneCtl,
+      passwordCtl: passwordCtl,
+      cfPasswordCtl: cfPasswordCtl,
+    );
+  }
+
+  @override
+  void dispose() {
+    emailCtl.dispose();
+    phoneCtl.dispose();
+    passwordCtl.dispose();
+    cfPasswordCtl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Replace with your actual UI
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -19,106 +50,66 @@ class SignInView extends StatelessWidget {
         child: Center(
           child: Column(
             children: [
-              SizedBox(height: 100),
+              const SizedBox(height: 100),
               Image.asset("assets/img/logo.png", width: 200, height: 200),
-              SizedBox(height: 20),
-              Text(
-                "Welcome, to DanyTask!",
+              const SizedBox(height: 20),
+              const Text(
+                "Welcome to DanyTask!",
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: const Color.fromARGB(255, 0, 95, 49),
+                  color: Color.fromARGB(255, 0, 95, 49),
                 ),
               ),
-              Text("Create your account and start organizing your tasks."),
-              SizedBox(height: 5),
+              const Text("Create your account and start organizing your tasks."),
+              const SizedBox(height: 5),
               TextField(
-                decoration: InputDecoration(
+                controller: emailCtl,
+                decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.person),
                   labelText: "Email",
-                  floatingLabelBehavior: FloatingLabelBehavior.auto,
-                  floatingLabelStyle: TextStyle(
-                    fontSize: 16,
-                    color: Colors.blue,
-                    height: 1.2,
-                  ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 20,
-                  ),
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 5),
+              const SizedBox(height: 5),
               TextField(
-                decoration: InputDecoration(
+                controller: phoneCtl,
+                decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.phone),
                   labelText: "Phone Number",
-                  floatingLabelBehavior: FloatingLabelBehavior.auto,
-                  floatingLabelStyle: TextStyle(
-                    fontSize: 16,
-                    color: Colors.blue,
-                    height: 1.2,
-                  ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 20,
-                  ),
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 5),
+              const SizedBox(height: 5),
               TextField(
-                decoration: InputDecoration(
+                controller: passwordCtl,
+                obscureText: true,
+                decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.lock),
                   labelText: "Password",
-                  floatingLabelBehavior: FloatingLabelBehavior.auto,
-                  floatingLabelStyle: TextStyle(
-                    fontSize: 16,
-                    color: Colors.blue,
-                    height: 1.2,
-                  ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 20,
-                  ),
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 5),
+              const SizedBox(height: 5),
               TextField(
-                decoration: InputDecoration(
+                controller: cfPasswordCtl,
+                obscureText: true,
+                decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.lock),
                   labelText: "Confirm Password",
-                  floatingLabelBehavior: FloatingLabelBehavior.auto,
-                  floatingLabelStyle: TextStyle(
-                    fontSize: 16,
-                    color: Colors.blue,
-                    height: 1.2,
-                  ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 20,
-                  ),
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
+
               Row(
-                spacing: 20,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomeView()),
-                        (route) => false,
-                      );
-                    },
+                    onPressed: () => controller.signIn(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         horizontal: 40.0,
                         vertical: 15.0,
                       ),
@@ -126,18 +117,17 @@ class SignInView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(30.0),
                       ),
                     ),
-                    child: Text(
+                    child: const Text(
                       "Sign In",
                       style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),
+                  const SizedBox(width: 20),
                   ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                    onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                      padding: EdgeInsets.symmetric(
+                      backgroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
                         horizontal: 40.0,
                         vertical: 15.0,
                       ),
@@ -145,12 +135,9 @@ class SignInView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(30.0),
                       ),
                     ),
-                    child: Text(
+                    child: const Text(
                       "Back",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: const Color.fromARGB(255, 0, 0, 0),
-                      ),
+                      style: TextStyle(fontSize: 18, color: Colors.black),
                     ),
                   ),
                 ],
