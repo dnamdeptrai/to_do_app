@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_app/Model/UserDatabase.dart';
 import 'package:to_do_app/View/HomeView.dart';
+import 'package:to_do_app/main.dart';
 
 class LoginController {
   final TextEditingController emailCtl;
@@ -87,6 +88,17 @@ class LoginController {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => HomeView()),
+    );
+  }
+
+  void back(BuildContext context) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Đã đăng xuất")));
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const start()),
+      (route) => false,
     );
   }
 }

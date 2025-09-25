@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'View/SignInView.dart';
 import 'View/LogInView.dart';
+import 'View/SettingView.dart';
 
 void main() {
   runApp(

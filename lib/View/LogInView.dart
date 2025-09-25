@@ -98,7 +98,7 @@ class _LoginViewState extends State<LogInView> {
                   ),
                   const SizedBox(width: 20),
                   ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => controller.back(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
