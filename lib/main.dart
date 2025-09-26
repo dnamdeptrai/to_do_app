@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'View/SignInView.dart';
 import 'View/LogInView.dart';
+import 'View/CalendarView.dart';
 import 'View/SettingView.dart';
 
 void main() {
@@ -49,7 +50,7 @@ class start extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => LogInView()),
+                MaterialPageRoute(builder: (context) => SettingsView()),
               );
             },
             style: ElevatedButton.styleFrom(

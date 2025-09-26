@@ -3,7 +3,6 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 class UserDatabase {
-  // singleton
   static final UserDatabase instance = UserDatabase._init();
 
   static Database? _database;
