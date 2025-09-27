@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import '../Model/TaskDatabase.dart';
+import 'package:intl/intl.dart';
 
 class AddTaskController {
   final TextEditingController tasknameCtl;
   final TextEditingController noteCtl;
   String? selectedPriority;
   DateTime? selectedDate;
-  final String userEmail; 
+  final String userEmail;
 
   AddTaskController({
     required this.tasknameCtl,
@@ -36,6 +37,7 @@ class AddTaskController {
       );
       return;
     }
+    final formattedDate = DateFormat("yyyy-MM-dd").format(selectedDate!);
 
     final task = {
       "userEmail": userEmail,
@@ -43,21 +45,21 @@ class AddTaskController {
       "note": noteCtl.text.trim(),
       "priority": _mapPriority(selectedPriority!),
       "isDone": 0,
-      "createdAt": selectedDate!.toIso8601String(),
+      "createdAt": formattedDate,
     };
 
     try {
       await TaskDatabase.instance.addTask(task);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Thêm task thành công")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Thêm task thành công")));
 
-      Navigator.pop(context); 
+      Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Lỗi khi thêm task: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Lỗi khi thêm task: $e")));
     }
   }
 }

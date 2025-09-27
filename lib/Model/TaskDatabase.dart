@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:intl/intl.dart';
 
 class TaskDatabase {
   TaskDatabase._privateConstructor();
   static final TaskDatabase instance = TaskDatabase._privateConstructor();
 
   static Database? _database;
-  static String? currentUserEmail; 
+  static String? currentUserEmail;
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -45,7 +46,7 @@ class TaskDatabase {
     if (currentUserEmail == null) {
       throw Exception("Chưa xác định user hiện tại");
     }
-    task["userEmail"] = currentUserEmail; 
+    task["userEmail"] = currentUserEmail;
     return await db.insert("tasks", task);
   }
 
@@ -54,13 +55,18 @@ class TaskDatabase {
     if (currentUserEmail == null) {
       throw Exception("Chưa xác định user hiện tại");
     }
+
+    final todayDateKey = DateFormat("yyyy-MM-dd").format(DateTime.now());
+
     return await db.query(
       "tasks",
-      where: "userEmail = ?",
-      whereArgs: [currentUserEmail],
-      orderBy: "priority ASC, createdAt DESC",
+      where: "userEmail = ? AND createdAt = ?",
+      whereArgs: [currentUserEmail, todayDateKey],
+      orderBy:
+          "priority ASC, createdAt DESC",
     );
   }
+
   Future<int> updateTask(Map<String, dynamic> task) async {
     final db = await instance.database;
     return await db.update(
