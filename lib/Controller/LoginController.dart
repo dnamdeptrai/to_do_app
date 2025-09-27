@@ -3,6 +3,7 @@ import 'package:to_do_app/Model/UserDatabase.dart';
 import 'package:to_do_app/View/HomeView.dart';
 import 'package:to_do_app/main.dart';
 
+
 class LoginController {
   final TextEditingController emailCtl;
   final TextEditingController passwordCtl;
@@ -87,7 +88,7 @@ class LoginController {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => HomeView()),
+      MaterialPageRoute(builder: (_) => HomeView(userEmail: email)),
     );
   }
 

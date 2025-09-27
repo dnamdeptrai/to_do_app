@@ -1,50 +1,36 @@
 import 'package:flutter/material.dart';
-import '../main.dart';
-
-// Bước 1: Tạo một class để biểu diễn một Task
-class Task {
-  final IconData icon;
-  final String title;
-  bool isCompleted; // Trạng thái này có thể thay đổi
-
-  Task({required this.icon, required this.title, this.isCompleted = false});
-}
+import '../Controller/HomeController.dart';
 
 class HomeView extends StatefulWidget {
-  // Chuyển thành StatefulWidget
-  const HomeView({super.key});
+  final String userEmail;
+  const HomeView({super.key, required this.userEmail});
 
   @override
   State<HomeView> createState() => _HomeViewState();
 }
 
 class _HomeViewState extends State<HomeView> {
-  // Tạo State class
-  // Bước 2: Khởi tạo danh sách các task
-  final List<Task> _tasks = [
-    Task(icon: Icons.description, title: 'Finish project proposal'),
-    Task(icon: Icons.phone, title: 'Call client for feedback'),
-    Task(icon: Icons.refresh, title: 'Reschedule team meeting'),
-    Task(icon: Icons.shopping_cart, title: 'Buy groceries (milk, eggs, bread)'),
-    Task(icon: Icons.run_circle_outlined, title: 'Go for a 30-minute run'),
-    Task(icon: Icons.book, title: "Read a chapter of 'Atomic Habits'"),
-  ];
+  late HomeController _controller;
+  List<Map<String, dynamic>> _tasks = [];
 
-  // Hàm để cập nhật trạng thái hoàn thành của task
-  void _toggleTaskCompletion(int index) {
+  @override
+  void initState() {
+    super.initState();
+    _controller = HomeController(userEmail: widget.userEmail);
+    _loadTasks();
+  }
+
+  Future<void> _loadTasks() async {
+    final tasks = await _controller.loadTasks();
     setState(() {
-      _tasks[index].isCompleted = !_tasks[index].isCompleted;
+      _tasks = tasks;
     });
   }
 
-  // Hàm để tính toán số task đã hoàn thành (cập nhật động)
-  String _getTasksCompletedProgress() {
-    int completedCount = _tasks
-        .where((task) => task.isCompleted)
-        .length;
-    return '$completedCount/${_tasks.length} tasks completed';
+  Future<void> _toggleTask(Map<String, dynamic> task) async {
+    await _controller.toggleTaskCompletion(task);
+    _loadTasks();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -59,160 +45,73 @@ class _HomeViewState extends State<HomeView> {
               const SizedBox(height: 20),
               _buildHeader(),
               const SizedBox(height: 10),
-              _buildDateAndProgress(), // Sẽ cập nhật để hiển thị tiến độ động
+              _buildDateAndProgress(),
               const SizedBox(height: 20),
               Expanded(
-                child: ListView
-                    .builder( // Sử dụng ListView.builder để hiệu quả hơn
-                  itemCount: _tasks.length,
-                  itemBuilder: (context, index) {
-                    final task = _tasks[index];
-                    return _buildTaskItem(
-                      icon: task.icon,
-                      title: task.title,
-                      isCompleted: task.isCompleted,
-                      onTap: () =>
-                          _toggleTaskCompletion(
-                              index), // Thêm hành động khi nhấn
-                    );
-                  },
-                ),
+                child: _tasks.isEmpty
+                    ? const Center(child: Text("Chưa có công việc"))
+                    : ListView.builder(
+                        itemCount: _tasks.length,
+                        itemBuilder: (context, index) {
+                          final task = _tasks[index];
+                          return _buildTaskItem(task);
+                        },
+                      ),
               ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // TODO: Thêm logic để thêm task mới (nếu cần)
+          _controller.openAddTaskView(context, _loadTasks);
         },
         backgroundColor: const Color(0xFF4285F4),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(100.0),
         ),
-        label: const Icon(Icons.add, size: 30,),
+        label: const Icon(Icons.add, size: 30),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
   Widget _buildHeader() {
-    return Row(
+    return const Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'Hôm Nay',
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-          ),
+        Text(
+          "Hôm nay",
+          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
         ),
-        Row(
-          children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundImage: const NetworkImage(
-                'https://i.pravatar.cc/300',
-              ),
-              backgroundColor: Colors.grey[200],
-            ),
-          ],
+        CircleAvatar(
+          radius: 20,
+          backgroundImage: NetworkImage("https://i.pravatar.cc/300"),
         ),
       ],
     );
   }
 
   Widget _buildDateAndProgress() {
-    final now = DateTime.now();
-    String dayOfWeek = _getDayOfWeek(now.weekday);
-    String month = _getMonth(now.month);
-    String dayOfMonth = now.day.toString();
-    final String formattedDate = '$dayOfWeek, $dayOfMonth $month';
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          formattedDate,
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
-          ),
+          _controller.getFormattedDate(),
+          style: const TextStyle(fontSize: 16, color: Colors.grey),
         ),
         const SizedBox(height: 4),
         Text(
-          _getTasksCompletedProgress(), // Hiển thị tiến độ động
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-          ),
+          _controller.getProgressText(_tasks),
+          style: const TextStyle(fontSize: 14, color: Colors.grey),
         ),
       ],
     );
   }
 
-  String _getDayOfWeek(int day) {
-    switch (day) {
-      case DateTime.monday:
-        return 'Thứ Hai';
-      case DateTime.tuesday:
-        return 'Thứ Ba';
-      case DateTime.wednesday:
-        return 'Thứ Tư';
-      case DateTime.thursday:
-        return 'Thứ Năm';
-      case DateTime.friday:
-        return 'Thứ Sáu';
-      case DateTime.saturday:
-        return 'Thứ Bảy';
-      case DateTime.sunday:
-        return 'Chủ Nhật';
-      default:
-        return '';
-    }
-  }
-
-  String _getMonth(int month) {
-    switch (month) {
-      case DateTime.january:
-        return 'Tháng 1';
-      case DateTime.february:
-        return 'Tháng 2';
-      case DateTime.march:
-        return 'Tháng 3';
-      case DateTime.april:
-        return 'Tháng 4';
-      case DateTime.may:
-        return 'Tháng 5';
-      case DateTime.june:
-        return 'Tháng 6';
-      case DateTime.july:
-        return 'Tháng 7';
-      case DateTime.august:
-        return 'Tháng 8';
-      case DateTime.september:
-        return 'Tháng 9';
-      case DateTime.october:
-        return 'Tháng 10';
-      case DateTime.november:
-        return 'Tháng 11';
-      case DateTime.december:
-        return 'Tháng 12';
-      default:
-        return '';
-    }
-  }
-
-  // Bước 3: Sửa đổi _buildTaskItem để nhận thêm callback onTap
-  Widget _buildTaskItem({
-    required IconData icon,
-    required String title,
-    required bool isCompleted,
-    required VoidCallback onTap, // Thêm VoidCallback để xử lý sự kiện nhấn
-  }) {
-    return GestureDetector( // Bọc Container bằng GestureDetector để bắt sự kiện nhấn
-      onTap: onTap, // Gọi callback khi nhấn
+  Widget _buildTaskItem(Map<String, dynamic> task) {
+    return GestureDetector(
+      onTap: () => _toggleTask(task),
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8.0),
         padding: const EdgeInsets.all(16.0),
@@ -230,70 +129,25 @@ class _HomeViewState extends State<HomeView> {
         ),
         child: Row(
           children: [
-            Icon(icon, color: Colors.grey[600]),
+            const Icon(Icons.task, color: Colors.blueAccent),
             const SizedBox(width: 15),
             Expanded(
               child: Text(
-                title,
+                task["taskName"],
                 style: TextStyle(
                   fontSize: 16,
-                  decoration: isCompleted ? TextDecoration.lineThrough : null,
-                  color: isCompleted ? Colors.grey : Colors.black,
+                  decoration: (task["isDone"] == 1)
+                      ? TextDecoration.lineThrough
+                      : null,
+                  color: (task["isDone"] == 1) ? Colors.grey : Colors.black,
                 ),
               ),
             ),
-            // Thay đổi Icon dựa trên isCompleted và cũng cho phép nhấn vào đây (tùy chọn)
             Icon(
-              isCompleted ? Icons.check_circle : Icons.circle_outlined,
-              color: isCompleted ? Colors.green : Colors.grey[400],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return BottomAppBar(
-      color: Colors.white,
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 10.0,
-      elevation: 5.0,
-      child: SizedBox(
-        height: 50.0,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.home),
-              iconSize: 30.0,
-              onPressed: () {
-                print("da nhan");
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.folder),
-              iconSize: 30.0,
-              onPressed: () {},
-            ),
-            const SizedBox(width: 50),
-            IconButton(
-              icon: const Icon(Icons.calendar_today),
-              iconSize: 30.0,
-              onPressed: () {},
-            ),
-
-            // chỗ này cài tạm bấm setting là out ra màn hình ban đầu, để test
-            IconButton(
-              icon: const Icon(Icons.settings),
-              iconSize: 30.0,
-              onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const start()),
-                      (route) => false,
-                );
-              },
+              (task["isDone"] == 1)
+                  ? Icons.check_circle
+                  : Icons.circle_outlined,
+              color: (task["isDone"] == 1) ? Colors.green : Colors.grey[400],
             ),
           ],
         ),

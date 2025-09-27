@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:to_do_app/View/HomeView.dart';
 import 'package:to_do_app/Model/UserDatabase.dart';
+import '../View/LogInView.dart';
 
 class SignInController {
   final TextEditingController emailCtl;
@@ -120,7 +120,7 @@ class SignInController {
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => const HomeView()),
+      MaterialPageRoute(builder: (_) => const LogInView()),
       (route) => false,
     );
   }

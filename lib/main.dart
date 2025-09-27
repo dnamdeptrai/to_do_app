@@ -3,6 +3,8 @@ import 'View/SignInView.dart';
 import 'View/LogInView.dart';
 import 'View/CalendarView.dart';
 import 'View/SettingView.dart';
+import 'View/AddTaskView.dart';
+import 'View/HomeView.dart';
 
 void main() {
   runApp(
@@ -50,7 +52,7 @@ class start extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SettingsView()),
+                MaterialPageRoute(builder: (context) => LogInView()),
               );
             },
             style: ElevatedButton.styleFrom(
