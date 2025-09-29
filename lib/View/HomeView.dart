@@ -1,5 +1,8 @@
+import 'dart:nativewrappers/_internal/vm/lib/ffi_patch.dart';
+
 import 'package:flutter/material.dart';
 import '../Controller/HomeController.dart';
+import '../View/SettingView.dart';
 
 class HomeView extends StatefulWidget {
   final String userEmail;
@@ -62,6 +65,7 @@ class _HomeViewState extends State<HomeView> {
           ),
         ),
       ),
+      bottomNavigationBar: _buildBottomNavigationBar(context),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           _controller.openAddTaskView(context, _loadTasks);
@@ -106,6 +110,60 @@ class _HomeViewState extends State<HomeView> {
           style: const TextStyle(fontSize: 14, color: Colors.grey),
         ),
       ],
+    );
+  }
+
+  Widget _buildBottomNavigationBar(BuildContext context) {
+    return BottomAppBar(
+      color: Colors.white,
+      shape: const CircularNotchedRectangle(),
+      notchMargin: 10.0,
+      elevation: 5.0,
+      child: SizedBox(
+        height: 50.0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            // Nhóm 1: Home và Folder
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.home),
+                  iconSize: 30.0,
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: const Icon(Icons.folder),
+                  iconSize: 30.0,
+                  onPressed: () {},
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.calendar_today),
+                  iconSize: 30.0,
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: const Icon(Icons.settings),
+                  iconSize: 30.0,
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SettingsView(),
+                      ),
+                      (route) => false,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 

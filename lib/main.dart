@@ -5,12 +5,15 @@ import 'View/CalendarView.dart';
 import 'View/SettingView.dart';
 import 'View/AddTaskView.dart';
 import 'View/HomeView.dart';
+import 'Model/UserDatabase.dart';
 
 void main() {
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SafeArea(child: Scaffold(body: start())),
+      home: SafeArea(
+        child: Scaffold(body: LogInView()),
+      ),
     ),
   );
 }
