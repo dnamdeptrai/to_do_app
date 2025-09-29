@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '../Controller/SettingsController.dart';
+import '../View/HomeView.dart';
+import '../View/CalendarView.dart';
 
 class SettingsView extends StatefulWidget {
-  const SettingsView({super.key});
+  final String userEmail;
+  const SettingsView({super.key, required this.userEmail});
 
   @override
   State<SettingsView> createState() => _SettingsScreenState();
@@ -16,11 +19,12 @@ class _SettingsScreenState extends State<SettingsView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Cài đặt"),
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       ),
       body: ListView(
         children: [
           SwitchListTile(
+            thumbIcon: WidgetStatePropertyAll(Icon(Icons.dark_mode)),
             title: const Text("Chế độ tối"),
             subtitle: const Text("Bật/tắt giao diện dark mode"),
             value: controller.darkMode,
@@ -29,6 +33,7 @@ class _SettingsScreenState extends State<SettingsView> {
             },
           ),
           SwitchListTile(
+            thumbIcon: WidgetStatePropertyAll(Icon(Icons.notification_add)),
             title: const Text("Thông báo"),
             subtitle: const Text("Nhận thông báo nhắc việc"),
             value: controller.notifications,
@@ -63,6 +68,65 @@ class _SettingsScreenState extends State<SettingsView> {
             },
           ),
         ],
+      ),
+      bottomNavigationBar: _buildBottomNavigationBar(context),
+    );
+  }
+
+  Widget _buildBottomNavigationBar(BuildContext context) {
+    return BottomAppBar(
+      color: Colors.white,
+      elevation: 5.0,
+      child: SizedBox(
+        height: 50.0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.home),
+              iconSize: 30.0,
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeView(userEmail: widget.userEmail),
+                  ),
+                  (route) => false,
+                );
+              },
+            ),
+
+            IconButton(
+              icon: const Icon(Icons.folder),
+              iconSize: 30.0,
+              onPressed: () {
+                /* Folder logic */
+              },
+            ),
+
+            IconButton(
+              icon: const Icon(Icons.calendar_today),
+              iconSize: 30.0,
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CalendarView(userEmail: widget.userEmail),
+                  ),
+                  (route) => false,
+                );
+              },
+            ),
+
+            IconButton(
+              icon: const Icon(Icons.settings),
+              iconSize: 30.0,
+              onPressed: () {
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

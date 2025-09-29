@@ -66,6 +66,29 @@ class TaskDatabase {
           "priority ASC, createdAt DESC",
     );
   }
+  Future<List<Map<String, dynamic>>> getTasksByDate(String dateKey) async {
+    final db = await instance.database;
+    if (currentUserEmail == null) {
+      throw Exception("Chưa xác định user hiện tại");
+    }
+    return await db.query(
+      "tasks",
+      where: "userEmail = ? AND createdAt = ?",
+      whereArgs: [currentUserEmail, dateKey],
+      orderBy: "priority ASC, createdAt DESC",
+    );
+  }
+  Future<double> getTaskProgressForDate(String dateKey) async {
+    final tasks = await getTasksByDate(dateKey);
+    
+    if (tasks.isEmpty) return 0.0;
+    
+    final total = tasks.length;
+    final done = tasks.where((t) => t["isDone"] == 1).length;
+    
+    // Trả về tỷ lệ hoàn thành (0.0 đến 1.0)
+    return done / total; 
+  }
 
   Future<int> updateTask(Map<String, dynamic> task) async {
     final db = await instance.database;

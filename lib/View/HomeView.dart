@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../Controller/HomeController.dart';
 import '../View/SettingView.dart';
+import '../View/CalendarView.dart';
 
 class HomeView extends StatefulWidget {
   final String userEmail;
@@ -122,7 +123,6 @@ class _HomeViewState extends State<HomeView> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            // Nhóm 1: Home và Folder
             Row(
               children: [
                 IconButton(
@@ -130,6 +130,7 @@ class _HomeViewState extends State<HomeView> {
                   iconSize: 30.0,
                   onPressed: () {},
                 ),
+                SizedBox(width: 15),
                 IconButton(
                   icon: const Icon(Icons.folder),
                   iconSize: 30.0,
@@ -142,8 +143,18 @@ class _HomeViewState extends State<HomeView> {
                 IconButton(
                   icon: const Icon(Icons.calendar_today),
                   iconSize: 30.0,
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            CalendarView(userEmail: widget.userEmail),
+                      ),
+                      (route) => false,
+                    );
+                  },
                 ),
+                SizedBox(width: 15),
                 IconButton(
                   icon: const Icon(Icons.settings),
                   iconSize: 30.0,
@@ -151,7 +162,7 @@ class _HomeViewState extends State<HomeView> {
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const SettingsView(),
+                        builder: (context) => SettingsView(userEmail: widget.userEmail,),
                       ),
                       (route) => false,
                     );
