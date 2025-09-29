@@ -66,17 +66,24 @@ class _HomeViewState extends State<HomeView> {
         ),
       ),
       bottomNavigationBar: _buildBottomNavigationBar(context),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          _controller.openAddTaskView(context, _loadTasks);
-        },
-        backgroundColor: const Color(0xFF4285F4),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(100.0),
+      floatingActionButton: SizedBox(
+        width: 100,
+        height: 100,
+        child: FloatingActionButton(
+          onPressed: () {
+            _controller.openAddTaskView(context, _loadTasks);
+          },
+          backgroundColor: const Color(0xFF0051DC),
+          shape: CircleBorder(
+            side: BorderSide(
+              color: Colors.white,
+              width: 9,
+            ),
+          ),
+          child: const Icon(Icons.add, size: 40, color: Colors.white),
         ),
-        label: const Icon(Icons.add, size: 30),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
@@ -131,7 +138,7 @@ class _HomeViewState extends State<HomeView> {
                   iconSize: 30.0,
                   onPressed: () {},
                 ),
-                SizedBox(width: 15),
+                SizedBox(width: 30),
                 IconButton(
                   icon: const Icon(Icons.folder),
                   iconSize: 30.0,
@@ -164,7 +171,7 @@ class _HomeViewState extends State<HomeView> {
                     );
                   },
                 ),
-                SizedBox(width: 15),
+                SizedBox(width: 30),
                 IconButton(
                   icon: const Icon(Icons.settings),
                   iconSize: 30.0,
