@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:to_do_app/View/CategoryView.dart';
 import '../Controller/SettingsController.dart';
 import '../View/HomeView.dart';
 import '../View/CalendarView.dart';
+import '../View/CategoryView.dart';
 
 class SettingsView extends StatefulWidget {
   final String userEmail;
@@ -100,7 +102,14 @@ class _SettingsScreenState extends State<SettingsView> {
               icon: const Icon(Icons.folder),
               iconSize: 30.0,
               onPressed: () {
-                /* Folder logic */
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CategoryView(userEmail: widget.userEmail),
+                  ),
+                  (route) => false,
+                );
               },
             ),
 
@@ -112,7 +121,7 @@ class _SettingsScreenState extends State<SettingsView> {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        CalendarView(userEmail: widget.userEmail),
+                        CategoryView(userEmail: widget.userEmail),
                   ),
                   (route) => false,
                 );

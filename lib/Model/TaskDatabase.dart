@@ -19,7 +19,6 @@ class TaskDatabase {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-
     return await openDatabase(path, version: 1, onCreate: _createDB);
   }
 
@@ -30,9 +29,10 @@ class TaskDatabase {
         userEmail TEXT NOT NULL,
         taskName TEXT NOT NULL,
         note TEXT,
-        priority INTEGER NOT NULL, -- 1: Rất quan trọng, 2: Quan trọng, 3: Ít quan trọng
+        priority INTEGER NOT NULL,
         isDone INTEGER NOT NULL,
-        createdAt TEXT NOT NULL
+        createdAt TEXT NOT NULL,
+        category TEXT NOT NULL
       )
     ''');
   }
@@ -46,6 +46,7 @@ class TaskDatabase {
     if (currentUserEmail == null) {
       throw Exception("Chưa xác định user hiện tại");
     }
+    
     task["userEmail"] = currentUserEmail;
     return await db.insert("tasks", task);
   }
@@ -62,10 +63,10 @@ class TaskDatabase {
       "tasks",
       where: "userEmail = ? AND createdAt = ?",
       whereArgs: [currentUserEmail, todayDateKey],
-      orderBy:
-          "priority ASC, createdAt DESC",
+      orderBy: "priority ASC, createdAt DESC",
     );
   }
+  
   Future<List<Map<String, dynamic>>> getTasksByDate(String dateKey) async {
     final db = await instance.database;
     if (currentUserEmail == null) {
@@ -78,6 +79,7 @@ class TaskDatabase {
       orderBy: "priority ASC, createdAt DESC",
     );
   }
+
   Future<double> getTaskProgressForDate(String dateKey) async {
     final tasks = await getTasksByDate(dateKey);
     
@@ -86,7 +88,6 @@ class TaskDatabase {
     final total = tasks.length;
     final done = tasks.where((t) => t["isDone"] == 1).length;
     
-    // Trả về tỷ lệ hoàn thành (0.0 đến 1.0)
     return done / total; 
   }
 
@@ -109,3 +110,5 @@ class TaskDatabase {
     );
   }
 }
+
+

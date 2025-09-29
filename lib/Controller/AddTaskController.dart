@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 class AddTaskController {
   final TextEditingController tasknameCtl;
   final TextEditingController noteCtl;
+  String? selectedCategory;
   String? selectedPriority;
   DateTime? selectedDate;
   final String userEmail;
@@ -31,7 +32,8 @@ class AddTaskController {
   Future<void> saveTask(BuildContext context) async {
     if (tasknameCtl.text.isEmpty ||
         selectedPriority == null ||
-        selectedDate == null) {
+        selectedDate == null ||
+        selectedCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Vui lòng nhập đầy đủ thông tin")),
       );
@@ -46,6 +48,7 @@ class AddTaskController {
       "priority": _mapPriority(selectedPriority!),
       "isDone": 0,
       "createdAt": formattedDate,
+      "category": selectedCategory!,
     };
 
     try {

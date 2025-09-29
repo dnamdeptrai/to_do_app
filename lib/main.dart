@@ -11,9 +11,7 @@ void main() {
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SafeArea(
-        child: Scaffold(body: LogInView()),
-      ),
+      home: SafeArea(child: Scaffold(body: LogInView())),
     ),
   );
 }
@@ -53,9 +51,10 @@ class start extends StatelessWidget {
           SizedBox(height: 30),
           ElevatedButton(
             onPressed: () {
-              Navigator.push(
+              Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => LogInView()),
+                (route) => false,
               );
             },
             style: ElevatedButton.styleFrom(
@@ -80,9 +79,10 @@ class start extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.push(
+                  Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (context) => SignInView()),
+                    (route) => false,
                   );
                 },
                 child: Text(

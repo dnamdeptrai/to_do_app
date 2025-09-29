@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../Controller/HomeController.dart';
 import '../View/SettingView.dart';
 import '../View/CalendarView.dart';
+import '../View/CategoryView.dart';
 
 class HomeView extends StatefulWidget {
   final String userEmail;
@@ -134,7 +135,16 @@ class _HomeViewState extends State<HomeView> {
                 IconButton(
                   icon: const Icon(Icons.folder),
                   iconSize: 30.0,
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            CategoryView(userEmail: widget.userEmail),
+                      ),
+                      (route) => false,
+                    );
+                  },
                 ),
               ],
             ),
@@ -162,7 +172,8 @@ class _HomeViewState extends State<HomeView> {
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => SettingsView(userEmail: widget.userEmail,),
+                        builder: (context) =>
+                            SettingsView(userEmail: widget.userEmail),
                       ),
                       (route) => false,
                     );

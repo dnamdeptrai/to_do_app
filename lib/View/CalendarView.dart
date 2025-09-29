@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../Controller/CalendarController.dart';
 import 'HomeView.dart';
 import 'SettingView.dart';
+import 'CategoryView.dart';
 
 class CalendarView extends StatefulWidget {
   final String userEmail;
@@ -201,16 +202,21 @@ class _CalendarViewState extends State<CalendarView> {
               icon: const Icon(Icons.folder),
               iconSize: 30.0,
               onPressed: () {
-                /* Folder logic */
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CategoryView(userEmail: widget.userEmail),
+                  ),
+                  (route) => false,
+                );
               },
             ),
 
             IconButton(
               icon: const Icon(Icons.calendar_today),
               iconSize: 30.0,
-              onPressed: () {
-                /* Đang ở đây */
-              },
+              onPressed: () {},
             ),
 
             IconButton(

@@ -14,12 +14,21 @@ class _AddTaskViewState extends State<AddTaskView> {
   final noteCtl = TextEditingController();
 
   String? _selectedPriority;
+  String? _selectedCategory;
   DateTime? _selectedDate;
 
   final List<String> _priorities = [
     "Rất quan trọng",
     "Quan trọng",
     "Quan trọng ít",
+  ];
+  final List<String> _category = [
+    "Cá nhân",
+    "Công việc",
+    "Học tập",
+    "Gia đình",
+    "Giải trí",
+    "Khác",
   ];
 
   @override
@@ -60,7 +69,7 @@ class _AddTaskViewState extends State<AddTaskView> {
             child: Column(
               children: [
                 const Text(
-                  "Thêm công việc mới",
+                  "Thêm Task mới",
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),
@@ -74,7 +83,6 @@ class _AddTaskViewState extends State<AddTaskView> {
                   ),
                 ),
                 const SizedBox(height: 20),
-
                 TextField(
                   controller: noteCtl,
                   decoration: const InputDecoration(
@@ -84,7 +92,26 @@ class _AddTaskViewState extends State<AddTaskView> {
                   ),
                 ),
                 const SizedBox(height: 20),
-
+                DropdownButtonFormField<String>(
+                  value: _selectedCategory,
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.category),
+                    labelText: "Phân loại",
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _category.map((category) {
+                    return DropdownMenuItem<String>(
+                      value: category,
+                      child: Text(category),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCategory = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 20),
                 DropdownButtonFormField<String>(
                   value: _selectedPriority,
                   decoration: const InputDecoration(
@@ -146,6 +173,7 @@ class _AddTaskViewState extends State<AddTaskView> {
                           noteCtl: noteCtl,
                           userEmail: widget.userEmail,
                         );
+                        controller.selectedCategory = _selectedCategory;
                         controller.selectedPriority = _selectedPriority;
                         controller.selectedDate = _selectedDate;
                         controller.saveTask(context);
