@@ -3,7 +3,6 @@ import 'package:to_do_app/View/CategoryView.dart';
 import '../Controller/SettingsController.dart';
 import '../View/HomeView.dart';
 import '../View/CalendarView.dart';
-import '../View/CategoryView.dart';
 
 class SettingsView extends StatefulWidget {
   final String userEmail;
@@ -121,7 +120,7 @@ class _SettingsScreenState extends State<SettingsView> {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        CategoryView(userEmail: widget.userEmail),
+                        CalendarView(userEmail: widget.userEmail),
                   ),
                   (route) => false,
                 );
@@ -131,8 +130,7 @@ class _SettingsScreenState extends State<SettingsView> {
             IconButton(
               icon: const Icon(Icons.settings),
               iconSize: 30.0,
-              onPressed: () {
-              },
+              onPressed: () {},
             ),
           ],
         ),
