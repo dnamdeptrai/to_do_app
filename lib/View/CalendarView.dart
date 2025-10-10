@@ -162,8 +162,6 @@ class _CalendarViewState extends State<CalendarView> {
       ),
       child: Row(
         children: [
-          Icon(Icons.notes_rounded, color: Colors.blueAccent),
-          const SizedBox(width: 15),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,7 +169,7 @@ class _CalendarViewState extends State<CalendarView> {
                 Text(
                   task["taskName"],
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     decoration: (task["isDone"] == 1)
                         ? TextDecoration.lineThrough
                         : null,
@@ -180,10 +178,10 @@ class _CalendarViewState extends State<CalendarView> {
                 ),
                 if (task['note'] != null && task['note'].isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.only(top: 4.0),
+                    padding: const EdgeInsets.only(top: 2.0),
                     child: Text(
                       task['note'],
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                     ),
                   ),
               ],
