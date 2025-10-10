@@ -39,7 +39,11 @@ class _SettingsScreenState extends State<SettingsView> {
             subtitle: const Text("Nhận thông báo nhắc việc"),
             value: controller.notifications,
             onChanged: (value) {
-              controller.toggleNotifications(value, () => setState(() {}));
+              controller.toggleNotifications(
+                value,
+                widget.userEmail,
+                () => setState(() {}),
+              );
             },
           ),
           ListTile(

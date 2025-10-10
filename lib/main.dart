@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'View/SignInView.dart';
 import 'View/LogInView.dart';
+import 'Controller/NotificationsController.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService().init();
+  await NotificationService().requestIOSPermissions();
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,

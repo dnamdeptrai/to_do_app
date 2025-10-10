@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../Model/UserDatabase.dart';
 import '../View/LogInView.dart';
+import 'NotificationsController.dart';
 
 class SettingsController {
   static final SettingsController _instance = SettingsController._internal();
@@ -15,8 +16,17 @@ class SettingsController {
     onUpdate();
   }
 
-  void toggleNotifications(bool value, VoidCallback onUpdate) {
+  void toggleNotifications(
+    bool value,
+    String userEmail,
+    VoidCallback onUpdate,
+  ) {
     notifications = value;
+    if (notifications) {
+      NotificationService().scheduleDailyNotifications(userEmail);
+    } else {
+      NotificationService().scheduleDailyNotifications(userEmail);
+    }
     onUpdate();
   }
 
