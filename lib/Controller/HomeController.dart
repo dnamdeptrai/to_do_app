@@ -21,7 +21,7 @@ class HomeController {
 
   String getFormattedDate() {
     final now = DateTime.now();
-    return DateFormat("EEEE, dd/MM/yyyy").format(now);
+    return DateFormat("EEEE, dd/MM/yyyy", "vi_VN").format(now);
   }
 
   String getProgressText(List<Map<String, dynamic>> tasks) {

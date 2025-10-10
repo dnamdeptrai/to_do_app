@@ -20,8 +20,9 @@ class _SettingsScreenState extends State<SettingsView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Cài đặt"),
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        backgroundColor: const Color(0xFFF0F5F9),
       ),
+      backgroundColor: const Color(0xFFF0F5F9),
       body: ListView(
         children: [
           SwitchListTile(

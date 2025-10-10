@@ -2,14 +2,24 @@ import 'package:flutter/material.dart';
 import 'View/SignInView.dart';
 import 'View/LogInView.dart';
 import 'Controller/NotificationsController.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService().init();
   await NotificationService().requestIOSPermissions();
+  await initializeDateFormatting('vi_VN', null);
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('vi', 'VN')],
+      locale: const Locale('vi', 'VN'),
       home: SafeArea(child: Scaffold(body: start())),
     ),
   );

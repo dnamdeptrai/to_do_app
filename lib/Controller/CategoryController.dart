@@ -20,31 +20,9 @@ class CategoryController {
 
   DateTime get _today => DateTime.now();
 
-  String _getVietnameseDayName(int weekday) {
-    switch (weekday) {
-      case 1:
-        return "Thứ Hai";
-      case 2:
-        return "Thứ Ba";
-      case 3:
-        return "Thứ Tư";
-      case 4:
-        return "Thứ Năm";
-      case 5:
-        return "Thứ Sáu";
-      case 6:
-        return "Thứ Bảy";
-      case 7:
-        return "Chủ Nhật";
-      default:
-        return "Ngày";
-    }
-  }
-
   String getFormattedDate() {
-    final dayName = _getVietnameseDayName(_today.weekday);
-    final dateString = DateFormat("dd/MM/yyyy").format(_today);
-    return "$dayName, $dateString";
+    final now = DateTime.now();
+    return DateFormat("EEEE, dd/MM/yyyy", "vi_VN").format(now);
   }
 
   String calculateProgressText(List<Map<String, dynamic>> tasks) {

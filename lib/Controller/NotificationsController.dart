@@ -91,7 +91,6 @@ class NotificationService {
   }
 
   Future<void> scheduleDailyNotifications(String userEmail) async {
-    // Thông báo 7h sáng
     await _scheduleNotification(
       0,
       'Chào buổi sáng!',
@@ -99,7 +98,6 @@ class NotificationService {
       const Time(7, 0, 0),
     );
 
-    // Thông báo 14h chiều
     await _scheduleNotification(
       1,
       'Công việc buổi chiều',
@@ -107,7 +105,6 @@ class NotificationService {
       const Time(14, 0, 0),
     );
 
-    // Thông báo 22h tối
     await _scheduleConditionalNightNotification(userEmail);
   }
 

@@ -90,6 +90,7 @@ class TaskDatabase {
     
     return done / total; 
   }
+  
 
   Future<int> updateTask(Map<String, dynamic> task) async {
     final db = await instance.database;
@@ -108,6 +109,28 @@ class TaskDatabase {
       where: "id = ? AND userEmail = ?",
       whereArgs: [id, currentUserEmail],
     );
+  }
+  
+  Future<Map<String, dynamic>> getDayStatus(String dateKey) async {
+    final db = await instance.database;
+    if (currentUserEmail == null) {
+      throw Exception("Chưa xác định user hiện tại");
+    }
+
+    final tasks = await db.query(
+      "tasks",
+      where: "userEmail = ? AND createdAt = ?",
+      whereArgs: [currentUserEmail, dateKey],
+    );
+
+    if (tasks.isEmpty) {
+      return {'hasTasks': false, 'allDone': false};
+    }
+
+    final total = tasks.length;
+    final done = tasks.where((t) => t["isDone"] == 1).length;
+
+    return {'hasTasks': true, 'allDone': total == done};
   }
 }
 
