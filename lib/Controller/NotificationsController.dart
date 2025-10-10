@@ -1,74 +1,77 @@
-// lib/Service/NotificationService.dart
-
+import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
-import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:to_do_app/Model/TaskDatabase.dart';
 
-class NotificationService {
-  static final NotificationService _notificationService =
-      NotificationService._internal();
+class NotificationsController {
+  static final NotificationsController _instance =
+      NotificationsController._internal();
+  factory NotificationsController() => _instance;
+  NotificationsController._internal();
 
-  factory NotificationService() {
-    return _notificationService;
-  }
-
-  NotificationService._internal();
-
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
-    const AndroidInitializationSettings initializationSettingsAndroid =
+    tz.initializeTimeZones();
+
+    const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const IOSInitializationSettings initializationSettingsIOS =
-        IOSInitializationSettings(
-          requestAlertPermission: false,
-          requestBadgePermission: false,
-          requestSoundPermission: false,
-        );
+    const DarwinInitializationSettings darwinSettings =
+        DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
 
-    const InitializationSettings initializationSettings =
-        InitializationSettings(
-          android: initializationSettingsAndroid,
-          iOS: initializationSettingsIOS,
-        );
+    final InitializationSettings settings = InitializationSettings(
+      android: androidSettings,
+      iOS: darwinSettings,
+      macOS: darwinSettings,
+    );
 
-    tz.initializeTimeZones();
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    await _plugin.initialize(settings);
   }
 
-  Future<void> requestIOSPermissions() async {
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-          IOSFlutterLocalNotificationsPlugin
-        >()
-        ?.requestPermissions(alert: true, badge: true, sound: true);
+  Future<void> requestPermissions() async {
+    if (Platform.isIOS || Platform.isMacOS) {
+      await _plugin
+          .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(alert: true, badge: true, sound: true);
+
+      await _plugin
+          .resolvePlatformSpecificImplementation<
+              MacOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(alert: true, badge: true, sound: true);
+    } else if (Platform.isAndroid) {
+      final androidImpl = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      await androidImpl?.requestNotificationsPermission();
+    }
   }
 
   Future<void> _scheduleNotification(
-    int id,
-    String title,
-    String body,
-    Time time,
-  ) async {
+      int id, String title, String body, int hour, int minute) async {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+
     tz.TZDateTime scheduledDate = tz.TZDateTime(
       tz.local,
       now.year,
       now.month,
       now.day,
-      time.hour,
-      time.minute,
-      time.second,
+      hour,
+      minute,
     );
+
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
 
-    await flutterLocalNotificationsPlugin.zonedSchedule(
+    await _plugin.zonedSchedule(
       id,
       title,
       body,
@@ -77,13 +80,14 @@ class NotificationService {
         android: AndroidNotificationDetails(
           'daily_notification_channel_id',
           'Daily Notifications',
-          channelDescription: 'Kênh cho các thông báo hàng ngày',
+          channelDescription: 'Kênh cho các thông báo hằng ngày',
           importance: Importance.max,
           priority: Priority.high,
         ),
-        iOS: IOSNotificationDetails(),
+        iOS: DarwinNotificationDetails(),
+        macOS: DarwinNotificationDetails(),
       ),
-      androidAllowWhileIdle: true,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
@@ -91,19 +95,11 @@ class NotificationService {
   }
 
   Future<void> scheduleDailyNotifications(String userEmail) async {
-    await _scheduleNotification(
-      0,
-      'Chào buổi sáng!',
-      'Hãy bắt đầu một ngày mới thật tuyệt vời nhé',
-      const Time(7, 0, 0),
-    );
+    await _scheduleNotification(0, 'Chào buổi sáng!',
+        'Hãy bắt đầu một ngày mới thật tuyệt vời nhé!', 7, 0);
 
-    await _scheduleNotification(
-      1,
-      'Công việc buổi chiều',
-      'Bạn đã hoàn thành công việc buổi sáng này chưa?',
-      const Time(14, 0, 0),
-    );
+    await _scheduleNotification(1, 'Công việc buổi chiều',
+        'Bạn đã hoàn thành công việc buổi sáng chưa?', 14, 0);
 
     await _scheduleConditionalNightNotification(userEmail);
   }
@@ -111,23 +107,18 @@ class NotificationService {
   Future<void> _scheduleConditionalNightNotification(String userEmail) async {
     TaskDatabase.setCurrentUser(userEmail);
     final todayDateKey = DateFormat("yyyy-MM-dd").format(DateTime.now());
-    final progress = await TaskDatabase.instance.getTaskProgressForDate(
-      todayDateKey,
-    );
+    final progress =
+        await TaskDatabase.instance.getTaskProgressForDate(todayDateKey);
 
     String title = "Tổng kết ngày";
-    String body;
+    String body = (progress == 1.0)
+        ? "Tuyệt vời! Bạn đã hoàn thành 100% task rồi 🎉"
+        : "Còn vài việc dang dở, cố gắng lên nhé 💪";
 
-    if (progress == 1.0) {
-      body = "Quá đẳng cấp! Bạn đã hoàn thành 100% task rồi này.";
-    } else {
-      body = "Còn một vài task chưa hoàn thiện, cố gắng lên nào!";
-    }
-
-    await _scheduleNotification(2, title, body, const Time(22, 0, 0));
+    await _scheduleNotification(2, title, body, 22, 0);
   }
 
   Future<void> cancelAllNotifications() async {
-    await flutterLocalNotificationsPlugin.cancelAll();
+    await _plugin.cancelAll();
   }
 }

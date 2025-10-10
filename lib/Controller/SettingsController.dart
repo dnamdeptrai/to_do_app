@@ -23,9 +23,9 @@ class SettingsController {
   ) {
     notifications = value;
     if (notifications) {
-      NotificationService().scheduleDailyNotifications(userEmail);
+      NotificationsController().scheduleDailyNotifications(userEmail);
     } else {
-      NotificationService().scheduleDailyNotifications(userEmail);
+      NotificationsController().scheduleDailyNotifications(userEmail);
     }
     onUpdate();
   }

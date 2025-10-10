@@ -7,8 +7,8 @@ import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await NotificationService().init();
-  await NotificationService().requestIOSPermissions();
+  await NotificationsController().init();
+  await NotificationsController().requestPermissions();
   await initializeDateFormatting('vi_VN', null);
   runApp(
     MaterialApp(
