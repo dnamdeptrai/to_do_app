@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/timezone.dart' as tz; // Đảm bảo bạn đã import dòng này
 import 'package:to_do_app/Model/TaskDatabase.dart';
 
 class NotificationsController {
@@ -16,6 +16,9 @@ class NotificationsController {
 
   Future<void> init() async {
     tz.initializeTimeZones();
+
+    final location = tz.getLocation('Asia/Ho_Chi_Minh');
+    tz.setLocalLocation(location);
 
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -120,5 +123,56 @@ class NotificationsController {
 
   Future<void> cancelAllNotifications() async {
     await _plugin.cancelAll();
+  }
+
+  Future<void> scheduleOneTimeTaskNotification({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime scheduledTime,
+  }) async {
+    final tz.TZDateTime scheduledDate = tz.TZDateTime.from(
+      scheduledTime,
+      tz.local,
+    );
+
+    if (scheduledDate.isBefore(tz.TZDateTime.now(tz.local))) {
+      print("Notification time $scheduledDate is in the past. Skipping.");
+      return;
+    }
+
+    await _plugin.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduledDate,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'task_notification_channel_id',
+          'Task Notifications',
+          channelDescription: 'Kênh cho các thông báo task cụ thể',
+          importance: Importance.max,
+          priority: Priority.high,
+          ticker: 'ticker',
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+        macOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+
+  Future<void> cancelNotification(int id) async {
+    await _plugin.cancel(id);
   }
 }

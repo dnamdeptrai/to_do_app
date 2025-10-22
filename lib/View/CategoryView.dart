@@ -17,11 +17,27 @@ class _CategoryViewState extends State<CategoryView> {
   late Future<void> _loadingFuture;
   String _progressText = "Đang tải tiến độ...";
 
+  final TextEditingController _searchCtl = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _controller = CategoryController(userEmail: widget.userEmail);
     _loadingFuture = _loadTasksAndProgress();
+
+    _searchCtl.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    _controller.filterTasks(_searchCtl.text);
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _searchCtl.removeListener(_onSearchChanged);
+    _searchCtl.dispose();
+    super.dispose();
   }
 
   Future<void> _loadTasksAndProgress() async {
@@ -33,25 +49,39 @@ class _CategoryViewState extends State<CategoryView> {
     }
   }
 
+
   Future<void> _toggleTask(Map<String, dynamic> task) async {
     await _controller.toggleTaskCompletion(task);
+    
     await _loadTasksAndProgress();
+    
+    _controller.filterTasks(_searchCtl.text);
+    
     setState(() {
       _progressText = _controller.getProgressText();
     });
   }
 
-  Widget _buildHeader() {
-    return const Row(
+  Widget _buildHeader(String userEmail) { 
+    final String firstLetter = userEmail.isNotEmpty ? userEmail[0].toUpperCase() : "?";
+    return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
+        const Text(
           "Phân loại",
           style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
         ),
         CircleAvatar(
           radius: 20,
-          backgroundImage: NetworkImage("https://i.pravatar.cc/300"),
+          backgroundColor: Colors.blueAccent.shade700,
+          child: Text(
+            firstLetter,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
         ),
       ],
     );
@@ -76,7 +106,6 @@ class _CategoryViewState extends State<CategoryView> {
 
   Widget _buildTaskItem(Map<String, dynamic> task) {
     final isDone = task["isDone"] == 1;
-
     return GestureDetector(
       onTap: () => _toggleTask(task),
       child: Container(
@@ -142,13 +171,11 @@ class _CategoryViewState extends State<CategoryView> {
                 );
               },
             ),
-
             IconButton(
-              icon: const Icon(Icons.folder, color: Colors.blueAccent), // Icon hiện tại nên sáng hơn
+              icon: const Icon(Icons.folder, color: Colors.blueAccent),
               iconSize: 30.0,
               onPressed: () {},
             ),
-
             IconButton(
               icon: const Icon(Icons.calendar_today),
               iconSize: 30.0,
@@ -163,7 +190,6 @@ class _CategoryViewState extends State<CategoryView> {
                 );
               },
             ),
-
             IconButton(
               icon: const Icon(Icons.settings),
               iconSize: 30.0,
@@ -184,6 +210,7 @@ class _CategoryViewState extends State<CategoryView> {
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -195,10 +222,35 @@ class _CategoryViewState extends State<CategoryView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              _buildHeader(),
+              _buildHeader(widget.userEmail),
               const SizedBox(height: 10),
               _buildDateAndProgress(),
-              const SizedBox(height: 20),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                child: TextField(
+                  controller: _searchCtl,
+                  decoration: InputDecoration(
+                    hintText: "Tìm kiếm task...",
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    suffixIcon: _searchCtl.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, color: Colors.grey),
+                            onPressed: () {
+                              _searchCtl.clear();
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                  ),
+                ),
+              ),
 
               Expanded(
                 child: FutureBuilder(
@@ -216,11 +268,22 @@ class _CategoryViewState extends State<CategoryView> {
                       );
                     }
 
+                    if (_controller.filteredGroupedTasks.isEmpty && _searchCtl.text.isNotEmpty) {
+                       return const Center(
+                        child: Text(
+                          "Không tìm thấy task nào.",
+                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                        ),
+                      );
+                    }
+
+                    final filteredCategories = _controller.filteredGroupedTasks.keys.toList();
+
                     return ListView.builder(
-                      itemCount: _controller.activeCategories.length,
+                      itemCount: filteredCategories.length,
                       itemBuilder: (context, index) {
-                        final category = _controller.activeCategories[index];
-                        final tasks = _controller.groupedTasks[category]!;
+                        final category = filteredCategories[index];
+                        final tasks = _controller.filteredGroupedTasks[category]!;
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

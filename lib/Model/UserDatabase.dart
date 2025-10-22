@@ -38,6 +38,16 @@ class UserDatabase {
     return await db.insert("users", row);
   }
 
+  Future<int> updateUser(String email, Map<String, dynamic> data) async {
+    final db = await instance.database;
+    return await db.update(
+      "users",
+      data,
+      where: "email = ?",
+      whereArgs: [email],
+    );
+  }
+
   Future<Map<String, dynamic>?> timbangEmail(String email) async {
     final db = await instance.database;
     final result = await db.query(

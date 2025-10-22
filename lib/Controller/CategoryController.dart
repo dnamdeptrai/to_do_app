@@ -3,7 +3,11 @@ import '../Model/TaskDatabase.dart';
 
 class CategoryController {
   final String userEmail;
+  
   Map<String, List<Map<String, dynamic>>> groupedTasks = {};
+  
+  Map<String, List<Map<String, dynamic>>> filteredGroupedTasks = {};
+
   List<String> activeCategories = [];
   List<Map<String, dynamic>> _allTasksForDay = [];
 
@@ -68,6 +72,33 @@ class CategoryController {
         activeCategories.add(cat);
       }
     }
+    
+    filteredGroupedTasks = groupedTasks;
+  }
+
+  void filterTasks(String query) {
+    query = query.toLowerCase();
+
+    if (query.isEmpty) {
+      filteredGroupedTasks = groupedTasks;
+      return;
+    }
+
+    Map<String, List<Map<String, dynamic>>> tempFiltered = {};
+
+    groupedTasks.forEach((category, tasks) {
+      
+      final filteredTasks = tasks.where((task) {
+        final taskName = task['taskName'].toString().toLowerCase();
+        return taskName.contains(query);
+      }).toList();
+
+      if (filteredTasks.isNotEmpty) {
+        tempFiltered[category] = filteredTasks;
+      }
+    });
+
+    filteredGroupedTasks = tempFiltered;
   }
 
   Future<void> toggleTaskCompletion(Map<String, dynamic> task) async {

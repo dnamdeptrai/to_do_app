@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../Model/TaskDatabase.dart';
 import '../View/AddTaskView.dart';
+import 'NotificationsController.dart';
 
 class HomeController {
   final String userEmail;
@@ -28,6 +29,31 @@ class HomeController {
     if (tasks.isEmpty) return "Chưa có công việc nào";
     final done = tasks.where((t) => t["isDone"] == 1).length;
     return "$done/${tasks.length} công việc đã hoàn thành";
+  }
+
+  Future<void> deleteTask(Map<String, dynamic> task) async {
+    int id = task['id'];
+    if (task['priority'] == 1) {
+      await NotificationsController().cancelNotification(id);
+    }
+    await TaskDatabase.instance.deleteTask(id);
+  }
+
+  Future<void> openEditTaskView(
+    BuildContext context,
+    Map<String, dynamic> task,
+    VoidCallback reload,
+  ) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddTaskView(
+          userEmail: userEmail,
+          taskToEdit: task,
+        ),
+      ),
+    );
+    reload();
   }
 
   Future<void> openAddTaskView(

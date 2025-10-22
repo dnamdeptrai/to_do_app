@@ -1,8 +1,5 @@
-// lib/View/CalendarView.dart
-
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:intl/intl.dart';
 import '../Controller/CalendarController.dart';
 import 'HomeView.dart';
 import 'SettingView.dart';
@@ -117,26 +114,25 @@ class _CalendarViewState extends State<CalendarView> {
             ),
           ),
           const Divider(height: 1),
-
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _dailyTasks.isEmpty
-                ? const Center(
-                    child: Text("Không có công việc nào trong ngày này."),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0,
-                      vertical: 10.0,
-                    ),
-                    itemCount: _dailyTasks.length,
-                    itemBuilder: (context, index) {
-                      final task = _dailyTasks[index];
+                    ? const Center(
+                        child: Text("Không có công việc nào trong ngày này."),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20.0,
+                          vertical: 10.0,
+                        ),
+                        itemCount: _dailyTasks.length,
+                        itemBuilder: (context, index) {
+                          final task = _dailyTasks[index];
 
-                      return _buildTaskItem(task);
-                    },
-                  ),
+                          return _buildTaskItem(task);
+                        },
+                      ),
           ),
         ],
       ),
@@ -187,7 +183,6 @@ class _CalendarViewState extends State<CalendarView> {
               ],
             ),
           ),
-
           Icon(
             (task["isDone"] == 1) ? Icons.check_circle : Icons.circle_outlined,
             color: (task["isDone"] == 1) ? Colors.green : Colors.grey[400],

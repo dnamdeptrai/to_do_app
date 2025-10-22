@@ -3,7 +3,13 @@ import '../Controller/AddTaskController.dart';
 
 class AddTaskView extends StatefulWidget {
   final String userEmail;
-  const AddTaskView({super.key, required this.userEmail});
+  final Map<String, dynamic>? taskToEdit;
+
+  const AddTaskView({
+    super.key,
+    required this.userEmail,
+    this.taskToEdit,
+  });
 
   @override
   State<AddTaskView> createState() => _AddTaskViewState();
@@ -16,6 +22,10 @@ class _AddTaskViewState extends State<AddTaskView> {
   String? _selectedPriority;
   String? _selectedCategory;
   DateTime? _selectedDate;
+  bool _setNotification = false;
+  TimeOfDay? _selectedNotificationTime;
+
+  bool get _isEditing => widget.taskToEdit != null;
 
   final List<String> _priorities = [
     "Rất quan trọng",
@@ -32,6 +42,35 @@ class _AddTaskViewState extends State<AddTaskView> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+
+    if (_isEditing) {
+      final task = widget.taskToEdit!;
+
+      tasknameCtl.text = task['taskName'];
+      noteCtl.text = task['note'] ?? '';
+
+      _selectedCategory = task['category'];
+      _selectedPriority = _reverseMapPriority(task['priority']);
+      _selectedDate = DateTime.tryParse(task['createdAt']);
+    }
+  }
+
+  String _reverseMapPriority(int priority) {
+    switch (priority) {
+      case 1:
+        return "Rất quan trọng";
+      case 2:
+        return "Quan trọng";
+      case 3:
+        return "Quan trọng ít";
+      default:
+        return "Quan trọng ít";
+    }
+  }
+
+  @override
   void dispose() {
     tasknameCtl.dispose();
     noteCtl.dispose();
@@ -42,13 +81,33 @@ class _AddTaskViewState extends State<AddTaskView> {
     DateTime now = DateTime.now();
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: now,
+      initialDate: _selectedDate ?? now,
       firstDate: DateTime(now.year - 1),
       lastDate: DateTime(now.year + 2),
     );
     if (picked != null) {
       setState(() {
         _selectedDate = picked;
+      });
+    }
+  }
+
+  Future<void> _pickNotificationTime() async {
+    if (_selectedDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Bạn phải chọn ngày thực hiện task trước!")),
+      );
+      return;
+    }
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime != null) {
+      setState(() {
+        _selectedNotificationTime = pickedTime;
       });
     }
   }
@@ -68,12 +127,12 @@ class _AddTaskViewState extends State<AddTaskView> {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                const Text(
-                  "Thêm Task mới",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                Text(
+                  _isEditing ? "Sửa Task" : "Thêm Task mới",
+                  style: const TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),
-
                 TextField(
                   controller: tasknameCtl,
                   decoration: const InputDecoration(
@@ -128,11 +187,61 @@ class _AddTaskViewState extends State<AddTaskView> {
                   onChanged: (value) {
                     setState(() {
                       _selectedPriority = value;
+
+                      if (_selectedPriority != "Rất quan trọng") {
+                        _setNotification = false;
+                        _selectedNotificationTime = null;
+                      }
                     });
                   },
                 ),
-                const SizedBox(height: 20),
+                if (_selectedPriority == "Rất quan trọng") ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.white.withOpacity(0.8),
+                    ),
+                    child: Column(
+                      children: [
+                        SwitchListTile(
+                          title: const Text("Đặt thông báo cho task này?"),
+                          value: _setNotification,
+                          onChanged: (bool value) {
+                            setState(() {
+                              _setNotification = value;
 
+                              if (!_setNotification) {
+                                _selectedNotificationTime = null;
+                              } else if (_selectedNotificationTime == null) {
+                                _pickNotificationTime();
+                              }
+                            });
+                          },
+                        ),
+                        if (_setNotification)
+                          ListTile(
+                            leading: const Icon(Icons.alarm,
+                                color: Colors.blueAccent),
+                            title: Text(
+                              _selectedNotificationTime == null
+                                  ? "Chọn giờ thông báo"
+                                  : "Thông báo lúc: ${_selectedNotificationTime!.format(context)}",
+                              style: TextStyle(
+                                  color: _selectedNotificationTime == null
+                                      ? Colors.red
+                                      : Colors.black),
+                            ),
+                            trailing:
+                                const Icon(Icons.arrow_forward_ios, size: 16),
+                            onTap: _pickNotificationTime,
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 20),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
@@ -160,9 +269,7 @@ class _AddTaskViewState extends State<AddTaskView> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 30),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -172,10 +279,14 @@ class _AddTaskViewState extends State<AddTaskView> {
                           tasknameCtl: tasknameCtl,
                           noteCtl: noteCtl,
                           userEmail: widget.userEmail,
+                          taskToEdit: widget.taskToEdit,
                         );
                         controller.selectedCategory = _selectedCategory;
                         controller.selectedPriority = _selectedPriority;
                         controller.selectedDate = _selectedDate;
+                        controller.setNotification = _setNotification;
+                        controller.notificationTime = _selectedNotificationTime;
+
                         controller.saveTask(context);
                       },
                       style: ElevatedButton.styleFrom(
@@ -188,9 +299,10 @@ class _AddTaskViewState extends State<AddTaskView> {
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                       ),
-                      child: const Text(
-                        "Tạo Task!",
-                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      child: Text(
+                        _isEditing ? "Cập nhật" : "Tạo Task!",
+                        style:
+                            const TextStyle(fontSize: 18, color: Colors.white),
                       ),
                     ),
                     const SizedBox(width: 20),
