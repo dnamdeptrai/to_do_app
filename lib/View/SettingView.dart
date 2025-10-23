@@ -3,6 +3,8 @@ import 'package:to_do_app/View/CategoryView.dart';
 import '../Controller/SettingsController.dart';
 import '../View/HomeView.dart';
 import '../View/CalendarView.dart';
+import 'package:provider/provider.dart';
+import '../Controller/ThemeProvider.dart';
 
 class SettingsView extends StatefulWidget {
   final String userEmail;
@@ -17,28 +19,31 @@ class _SettingsScreenState extends State<SettingsView> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+    final isDarkMode = themeProvider.themeMode == ThemeMode.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Cài đặt"),
-        backgroundColor: const Color(0xFFF0F5F9),
       ),
-      backgroundColor: const Color(0xFFF0F5F9),
       body: ListView(
         children: [
           SwitchListTile(
-            thumbIcon: WidgetStatePropertyAll(Icon(Icons.dark_mode)),
+            thumbIcon: WidgetStatePropertyAll(
+                Icon(isDarkMode ? Icons.dark_mode : Icons.light_mode)),
             title: const Text("Chế độ tối"),
             subtitle: const Text("Bật/tắt giao diện dark mode"),
-            value: controller.darkMode,
+            value: isDarkMode,
             onChanged: (value) {
-              controller.toggleDarkMode(value, () => setState(() {}));
+              themeProvider.toggleTheme(value);
             },
           ),
+
           SwitchListTile(
             thumbIcon: WidgetStatePropertyAll(Icon(Icons.notification_add)),
             title: const Text("Thông báo"),
             subtitle: const Text("Nhận thông báo nhắc việc"),
-            value: controller.notifications,
+            value: controller.notifications, 
             onChanged: (value) {
               controller.toggleNotifications(
                 value,
@@ -51,7 +56,11 @@ class _SettingsScreenState extends State<SettingsView> {
             leading: const Icon(Icons.lock),
             title: const Text("Đổi mật khẩu"),
             onTap: () {
-              controller.changePassword(context, "test@gmail.com", "123456");
+             ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content:
+                        Text("Vui lòng đổi mật khẩu ở trang cá nhân (avatar)")),
+              );
             },
           ),
           ListTile(
@@ -75,21 +84,24 @@ class _SettingsScreenState extends State<SettingsView> {
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
+      bottomNavigationBar: _buildBottomNavigationBar(context, 3),
     );
   }
 
-  Widget _buildBottomNavigationBar(BuildContext context) {
+  Widget _buildBottomNavigationBar(BuildContext context, int selectedIndex) { 
     return BottomAppBar(
-      color: Colors.white,
-      elevation: 5.0,
+      shape: const CircularNotchedRectangle(),
+      notchMargin: 10.0,
       child: SizedBox(
         height: 50.0,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             IconButton(
-              icon: const Icon(Icons.home),
+              icon: Icon(
+                Icons.home,
+                color: selectedIndex == 0 ? Colors.blueAccent : null,
+              ),
               iconSize: 30.0,
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
@@ -103,7 +115,10 @@ class _SettingsScreenState extends State<SettingsView> {
             ),
 
             IconButton(
-              icon: const Icon(Icons.folder),
+              icon: Icon(
+                Icons.folder,
+                color: selectedIndex == 1 ? Colors.blueAccent : null,
+              ),
               iconSize: 30.0,
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
@@ -118,7 +133,10 @@ class _SettingsScreenState extends State<SettingsView> {
             ),
 
             IconButton(
-              icon: const Icon(Icons.calendar_today),
+              icon: Icon(
+                Icons.calendar_today,
+                color: selectedIndex == 2 ? Colors.blueAccent : null,
+              ),
               iconSize: 30.0,
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
@@ -133,9 +151,12 @@ class _SettingsScreenState extends State<SettingsView> {
             ),
 
             IconButton(
-              icon: const Icon(Icons.settings),
+              icon: Icon(
+                Icons.settings,
+                color: selectedIndex == 3 ? Colors.blueAccent : null,
+              ),
               iconSize: 30.0,
-              onPressed: () {},
+              onPressed: () {}, // Đang ở Settings, không cần điều hướng
             ),
           ],
         ),

@@ -7,14 +7,8 @@ class SettingsController {
   static final SettingsController _instance = SettingsController._internal();
   factory SettingsController() => _instance;
   SettingsController._internal();
-
-  bool darkMode = false;
+  
   bool notifications = true;
-
-  void toggleDarkMode(bool value, VoidCallback onUpdate) {
-    darkMode = value;
-    onUpdate();
-  }
 
   void toggleNotifications(
     bool value,
@@ -25,7 +19,7 @@ class SettingsController {
     if (notifications) {
       NotificationsController().scheduleDailyNotifications(userEmail);
     } else {
-      NotificationsController().scheduleDailyNotifications(userEmail);
+      NotificationsController().cancelAllNotifications();
     }
     onUpdate();
   }

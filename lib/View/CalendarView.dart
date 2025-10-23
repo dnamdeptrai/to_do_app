@@ -87,39 +87,78 @@ class _CalendarViewState extends State<CalendarView> {
     );
   }
 
+  Widget _buildCalendar(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
+    return TableCalendar(
+      locale: 'vi_VN',
+      firstDay: DateTime.utc(2020, 1, 1),
+      lastDay: DateTime.utc(2030, 12, 31),
+      focusedDay: _controller.focusedDay,
+      selectedDayPredicate: (day) => _controller.isDaySelected(day),
+      onDaySelected: (selectedDay, focusedDay) {
+        if (!_controller.isDaySelected(selectedDay)) {
+          _loadTasksForSelectedDay(selectedDay);
+        }
+      },
+      calendarBuilders: CalendarBuilders(markerBuilder: _markerBuilder),
+
+      headerStyle: HeaderStyle(
+        formatButtonVisible: false,
+        titleCentered: true,
+        titleTextStyle: theme.textTheme.titleMedium ?? TextStyle(), // Màu chữ từ theme
+      ),
+
+      calendarStyle: CalendarStyle(
+        defaultTextStyle: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
+        weekendTextStyle: TextStyle(color: isDarkMode ? Colors.red[300] : Colors.red),
+        outsideTextStyle: TextStyle(color: isDarkMode ? Colors.white38 : Colors.grey[400]),
+
+        todayDecoration: BoxDecoration(
+          color: Colors.blueAccent.withOpacity(0.3), 
+          shape: BoxShape.circle,
+        ),
+        todayTextStyle: TextStyle(
+          color: isDarkMode ? Colors.white : Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
+
+        selectedDecoration: const BoxDecoration(
+          color: Colors.blueAccent, 
+          shape: BoxShape.circle,
+        ),
+        selectedTextStyle: const TextStyle(
+          color: Colors.white, 
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+  
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor, 
       appBar: AppBar(
         title: const Text("Lịch"),
-        backgroundColor: const Color(0xFFF0F5F9),
       ),
       body: Column(
         children: [
-          TableCalendar(
-            locale: 'vi_VN',
-            firstDay: DateTime.utc(2020, 1, 1),
-            lastDay: DateTime.utc(2030, 12, 31),
-            focusedDay: _controller.focusedDay,
-            selectedDayPredicate: (day) => _controller.isDaySelected(day),
-            onDaySelected: (selectedDay, focusedDay) {
-              if (!_controller.isDaySelected(selectedDay)) {
-                _loadTasksForSelectedDay(selectedDay);
-              }
-            },
-            calendarBuilders: CalendarBuilders(markerBuilder: _markerBuilder),
-            headerStyle: const HeaderStyle(
-              formatButtonVisible: false,
-              titleCentered: true,
-            ),
-          ),
+          _buildCalendar(context), 
           const Divider(height: 1),
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _dailyTasks.isEmpty
-                    ? const Center(
-                        child: Text("Không có công việc nào trong ngày này."),
+                    ? Center(
+                        child: Text(
+                          "Không có công việc nào trong ngày này.",
+                          style: TextStyle(color: theme.textTheme.bodySmall?.color), 
+                        ),
                       )
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(
@@ -129,27 +168,30 @@ class _CalendarViewState extends State<CalendarView> {
                         itemCount: _dailyTasks.length,
                         itemBuilder: (context, index) {
                           final task = _dailyTasks[index];
-
-                          return _buildTaskItem(task);
+                          return _buildTaskItem(context, task); // Truyền context
                         },
                       ),
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
+      bottomNavigationBar: _buildBottomNavigationBar(context, 2), // SỬA HIGHLIGHT (index 2)
     );
   }
 
-  Widget _buildTaskItem(Map<String, dynamic> task) {
+  Widget _buildTaskItem(BuildContext context, Map<String, dynamic> task) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+    final isDone = task["isDone"] == 1;
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkMode ? Colors.grey[800] : Colors.white, // Nền
         borderRadius: BorderRadius.circular(15.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: isDarkMode ? Colors.black.withOpacity(0.3) : Colors.grey.withOpacity(0.1), // Đổ bóng
             spreadRadius: 1,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -166,10 +208,12 @@ class _CalendarViewState extends State<CalendarView> {
                   task["taskName"],
                   style: TextStyle(
                     fontSize: 15,
-                    decoration: (task["isDone"] == 1)
+                    decoration: isDone
                         ? TextDecoration.lineThrough
                         : null,
-                    color: (task["isDone"] == 1) ? Colors.grey : Colors.black,
+                    color: isDone // Màu chữ
+                        ? (isDarkMode ? Colors.white54 : Colors.grey)
+                        : (isDarkMode ? Colors.white : Colors.black),
                   ),
                 ),
                 if (task['note'] != null && task['note'].isNotEmpty)
@@ -177,31 +221,36 @@ class _CalendarViewState extends State<CalendarView> {
                     padding: const EdgeInsets.only(top: 2.0),
                     child: Text(
                       task['note'],
-                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                      style: TextStyle(
+                        fontSize: 10, 
+                        color: isDarkMode ? Colors.white60 : Colors.grey[600] // Màu chữ note
+                      ),
                     ),
                   ),
               ],
             ),
           ),
           Icon(
-            (task["isDone"] == 1) ? Icons.check_circle : Icons.circle_outlined,
-            color: (task["isDone"] == 1) ? Colors.green : Colors.grey[400],
+            isDone ? Icons.check_circle : Icons.circle_outlined,
+            color: isDone ? Colors.green : (isDarkMode ? Colors.grey[600] : Colors.grey[400]), // Màu icon check
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBottomNavigationBar(BuildContext context) {
+  Widget _buildBottomNavigationBar(BuildContext context, int selectedIndex) {
     return BottomAppBar(
-      color: Colors.white,
       shape: const CircularNotchedRectangle(),
       notchMargin: 8.0,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           IconButton(
-            icon: const Icon(Icons.home),
+            icon: Icon(
+              Icons.home,
+              color: selectedIndex == 0 ? Colors.blueAccent : Theme.of(context).iconTheme.color,
+            ),
             iconSize: 30.0,
             onPressed: () {
               Navigator.pushAndRemoveUntil(
@@ -214,7 +263,10 @@ class _CalendarViewState extends State<CalendarView> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.folder),
+            icon: Icon(
+              Icons.folder,
+              color: selectedIndex == 1 ? Colors.blueAccent : Theme.of(context).iconTheme.color,
+            ),
             iconSize: 30.0,
             onPressed: () {
               Navigator.pushAndRemoveUntil(
@@ -228,12 +280,18 @@ class _CalendarViewState extends State<CalendarView> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.calendar_today),
+            icon: Icon(
+              Icons.calendar_today,
+              color: selectedIndex == 2 ? Colors.blueAccent : Theme.of(context).iconTheme.color,
+            ),
             iconSize: 30.0,
-            onPressed: () {},
+            onPressed: () {}, // Đang ở Calendar
           ),
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: Icon(
+              Icons.settings,
+              color: selectedIndex == 3 ? Colors.blueAccent : Theme.of(context).iconTheme.color,
+            ),
             iconSize: 30.0,
             onPressed: () {
               Navigator.pushAndRemoveUntil(

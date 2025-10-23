@@ -3,6 +3,7 @@ import '../Controller/CategoryController.dart';
 import '../View/HomeView.dart';
 import '../View/SettingView.dart';
 import '../View/CalendarView.dart';
+import '../View/ProfileDrawerView.dart'; // Đảm bảo import này đã có
 
 class CategoryView extends StatefulWidget {
   final String userEmail;
@@ -49,37 +50,47 @@ class _CategoryViewState extends State<CategoryView> {
     }
   }
 
-
   Future<void> _toggleTask(Map<String, dynamic> task) async {
     await _controller.toggleTaskCompletion(task);
     
+    // Tải lại và lọc task sau khi thay đổi trạng thái
     await _loadTasksAndProgress();
-    
     _controller.filterTasks(_searchCtl.text);
     
-    setState(() {
-      _progressText = _controller.getProgressText();
-    });
+    if (mounted) {
+      setState(() {
+        _progressText = _controller.getProgressText();
+      });
+    }
   }
 
-  Widget _buildHeader(String userEmail) { 
+  // SỬA LỖI 2: Bấm được CircleAvatar
+  Widget _buildHeader(BuildContext context, String userEmail) { // Thêm BuildContext
     final String firstLetter = userEmail.isNotEmpty ? userEmail[0].toUpperCase() : "?";
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
+        Text( // Đảm bảo Text sử dụng màu từ theme
           "Phân loại",
-          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            fontSize: 32,
+          ),
         ),
-        CircleAvatar(
-          radius: 20,
-          backgroundColor: Colors.blueAccent.shade700,
-          child: Text(
-            firstLetter,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+        GestureDetector( // Bọc CircleAvatar bằng GestureDetector
+          onTap: () {
+            Scaffold.of(context).openEndDrawer(); // Mở EndDrawer
+          },
+          child: CircleAvatar(
+            radius: 20,
+            backgroundColor: Colors.blueAccent.shade700,
+            child: Text(
+              firstLetter,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white, // Luôn trắng để nổi bật
+              ),
             ),
           ),
         ),
@@ -87,36 +98,45 @@ class _CategoryViewState extends State<CategoryView> {
     );
   }
 
-  Widget _buildDateAndProgress() {
+  Widget _buildDateAndProgress(BuildContext context) { // Thêm BuildContext
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           _controller.getFormattedDate(),
-          style: const TextStyle(fontSize: 16, color: Colors.grey),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.grey,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
           _progressText,
-          style: const TextStyle(fontSize: 14, color: Colors.grey),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).brightness == Brightness.dark ? Colors.white60 : Colors.grey,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildTaskItem(Map<String, dynamic> task) {
+  // SỬA LỖI 3: Dark Mode cho Task Item (Card) và màu chữ
+  Widget _buildTaskItem(BuildContext context, Map<String, dynamic> task) { // Thêm BuildContext
     final isDone = task["isDone"] == 1;
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: () => _toggleTask(task),
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4.0),
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: Colors.white,
+          // Dùng màu từ theme hoặc màu tùy chỉnh nhưng vẫn theo theme
+          color: isDarkMode ? Colors.grey[800] : Colors.white, // Màu nền của từng task
           borderRadius: BorderRadius.circular(15.0),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: isDarkMode ? Colors.black.withOpacity(0.3) : Colors.grey.withOpacity(0.1),
               spreadRadius: 1,
               blurRadius: 5,
               offset: const Offset(0, 3),
@@ -125,7 +145,10 @@ class _CategoryViewState extends State<CategoryView> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.task, color: Colors.blueAccent),
+            Icon(
+              Icons.task,
+              color: isDarkMode ? Colors.blueAccent.shade200 : Colors.blueAccent, // Màu icon theo theme
+            ),
             const SizedBox(width: 15),
             Expanded(
               child: Text(
@@ -133,7 +156,10 @@ class _CategoryViewState extends State<CategoryView> {
                 style: TextStyle(
                   fontSize: 16,
                   decoration: isDone ? TextDecoration.lineThrough : null,
-                  color: isDone ? Colors.grey : Colors.black,
+                  // Màu chữ phụ thuộc vào trạng thái và theme
+                  color: isDone 
+                      ? (isDarkMode ? Colors.white54 : Colors.grey) 
+                      : (isDarkMode ? Colors.white : Colors.black),
                 ),
               ),
             ),
@@ -141,7 +167,7 @@ class _CategoryViewState extends State<CategoryView> {
               isDone
                   ? Icons.check_circle 
                   : Icons.circle_outlined, 
-              color: isDone ? Colors.green : Colors.grey[400],
+              color: isDone ? Colors.green : (isDarkMode ? Colors.grey[600] : Colors.grey[400]), // Màu icon hoàn thành
             ),
           ],
         ),
@@ -149,17 +175,21 @@ class _CategoryViewState extends State<CategoryView> {
     );
   }
 
-  Widget _buildBottomNavigationBar(BuildContext context) {
+  // SỬA LỖI 1: BottomAppBar highlight đúng
+  Widget _buildBottomNavigationBar(BuildContext context, int selectedIndex) {
     return BottomAppBar(
-      color: Colors.white,
-      elevation: 5.0,
+      shape: const CircularNotchedRectangle(),
+      notchMargin: 10.0,
       child: SizedBox(
         height: 50.0,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             IconButton(
-              icon: const Icon(Icons.home),
+              icon: Icon(
+                Icons.home,
+                color: selectedIndex == 0 ? Colors.blueAccent : Theme.of(context).iconTheme.color, // Lấy màu từ theme nếu không chọn
+              ),
               iconSize: 30.0,
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
@@ -171,13 +201,21 @@ class _CategoryViewState extends State<CategoryView> {
                 );
               },
             ),
+
             IconButton(
-              icon: const Icon(Icons.folder, color: Colors.blueAccent),
+              icon: Icon(
+                Icons.folder,
+                color: selectedIndex == 1 ? Colors.blueAccent : Theme.of(context).iconTheme.color, // Lấy màu từ theme nếu không chọn
+              ),
               iconSize: 30.0,
-              onPressed: () {},
+              onPressed: () {}, // Đang ở Category, không cần điều hướng
             ),
+
             IconButton(
-              icon: const Icon(Icons.calendar_today),
+              icon: Icon(
+                Icons.calendar_today,
+                color: selectedIndex == 2 ? Colors.blueAccent : Theme.of(context).iconTheme.color, // Lấy màu từ theme nếu không chọn
+              ),
               iconSize: 30.0,
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
@@ -190,8 +228,12 @@ class _CategoryViewState extends State<CategoryView> {
                 );
               },
             ),
+
             IconButton(
-              icon: const Icon(Icons.settings),
+              icon: Icon(
+                Icons.settings,
+                color: selectedIndex == 3 ? Colors.blueAccent : Theme.of(context).iconTheme.color, // Lấy màu từ theme nếu không chọn
+              ),
               iconSize: 30.0,
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
@@ -210,11 +252,14 @@ class _CategoryViewState extends State<CategoryView> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F5F9),
+      backgroundColor: theme.scaffoldBackgroundColor, // SỬA LỖI 3: Dùng màu nền từ theme
+      endDrawer: ProfileDrawerView(userEmail: widget.userEmail), // Đảm bảo EndDrawer đã có
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -222,9 +267,9 @@ class _CategoryViewState extends State<CategoryView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              _buildHeader(widget.userEmail),
+              _buildHeader(context, widget.userEmail), // Truyền context
               const SizedBox(height: 10),
-              _buildDateAndProgress(),
+              _buildDateAndProgress(context), // Truyền context
 
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -232,10 +277,11 @@ class _CategoryViewState extends State<CategoryView> {
                   controller: _searchCtl,
                   decoration: InputDecoration(
                     hintText: "Tìm kiếm task...",
-                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    hintStyle: TextStyle(color: isDarkMode ? Colors.white54 : Colors.grey), // Màu hint text theo theme
+                    prefixIcon: Icon(Icons.search, color: isDarkMode ? Colors.white70 : Colors.grey), // Màu icon theo theme
                     suffixIcon: _searchCtl.text.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear, color: Colors.grey),
+                            icon: Icon(Icons.clear, color: isDarkMode ? Colors.white70 : Colors.grey), // Màu icon theo theme
                             onPressed: () {
                               _searchCtl.clear();
                             },
@@ -246,9 +292,10 @@ class _CategoryViewState extends State<CategoryView> {
                       borderSide: BorderSide.none,
                     ),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: isDarkMode ? Colors.grey[800] : Colors.white, // Màu nền TextField theo theme
                     contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
                   ),
+                  style: TextStyle(color: isDarkMode ? Colors.white : Colors.black), // Màu chữ nhập vào theo theme
                 ),
               ),
 
@@ -260,19 +307,23 @@ class _CategoryViewState extends State<CategoryView> {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (_controller.activeCategories.isEmpty) {
-                      return const Center(
+                      return Center(
                         child: Text(
                           "Chưa có công việc nào cần hoàn thành hôm nay.",
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: isDarkMode ? Colors.white70 : Colors.grey,
+                          ),
                         ),
                       );
                     }
 
                     if (_controller.filteredGroupedTasks.isEmpty && _searchCtl.text.isNotEmpty) {
-                       return const Center(
+                       return Center(
                         child: Text(
                           "Không tìm thấy task nào.",
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: isDarkMode ? Colors.white70 : Colors.grey,
+                          ),
                         ),
                       );
                     }
@@ -295,15 +346,14 @@ class _CategoryViewState extends State<CategoryView> {
                               ),
                               child: Text(
                                 "$category:",
-                                style: const TextStyle(
-                                  fontSize: 20,
+                                style: theme.textTheme.titleMedium?.copyWith( // Màu chữ tiêu đề danh mục theo theme
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
+                                  color: isDarkMode ? Colors.white : Colors.black87,
                                 ),
                               ),
                             ),
                             ...tasks
-                                .map((task) => _buildTaskItem(task))
+                                .map((task) => _buildTaskItem(context, task)) // Truyền context
                                 .toList(),
                           ],
                         );
@@ -316,7 +366,7 @@ class _CategoryViewState extends State<CategoryView> {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
+      bottomNavigationBar: _buildBottomNavigationBar(context, 1),
     );
   }
 }

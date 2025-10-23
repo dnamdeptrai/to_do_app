@@ -98,7 +98,7 @@ class AddTaskController {
 
           await NotificationsController().scheduleOneTimeTaskNotification(
             id: taskId, 
-            title: "NhiệmD vụ quan trọng! ⏰",
+            title: "Nhiệm vụ quan trọng! ⏰",
             body:
                 "Nhiệm vụ '$taskName' rất quan trọng cần phải hoàn thành trong hôm nay đó nha!",
             scheduledTime: scheduledDateTime,

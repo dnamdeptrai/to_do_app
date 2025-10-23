@@ -1,10 +1,12 @@
 name: to_do_app
 description: "A new Flutter project."
+
 publish_to: 'none' 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.2.3 <4.0.0' 
+  sdk: '>=3.2.3 <4.0.0'
+
 dependencies:
   flutter:
     sdk: flutter
@@ -17,20 +19,37 @@ dependencies:
   intl: ^0.20.2
   cupertino_icons: ^1.0.8
   flutter_slidable: ^3.1.0
-
+  provider: ^6.1.2
+  shared_preferences: ^2.2.3
+  # timezone: ^0.9.2 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.13.1 
   flutter_lints: ^3.0.0 
-
+  flutter_launcher_icons: ^0.13.1 
+  flutter_native_splash: ^2.4.0
 
 flutter_launcher_icons:
   android: true  
   ios: true       
   image_path: "assets/img/logo.png" 
 
+flutter_native_splash:
+  color: "#FFFFFF" 
+  color_dark: "#121212" 
+  
+  image: assets/img/logo.png 
+  
+  branding: assets/img/branding.png 
+  
+  android_12:
+    image: assets/img/logo.png
+    color: "#FFFFFF"
+    color_dark: "#121212"
+    branding: assets/img/branding.png 
+
+  ios_content_mode: scaleAspectFit 
 flutter:
-  assets:
-    - assets/img/
   uses-material-design: true
+  assets:
+    - assets/img/ 
