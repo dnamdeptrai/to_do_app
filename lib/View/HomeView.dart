@@ -115,7 +115,7 @@ class _HomeViewState extends State<HomeView> {
                             "Chưa có công việc",
                             style: TextStyle(
                                 color: theme.textTheme.bodySmall
-                                    ?.color), // SỬA DARK MODE
+                                    ?.color), 
                           ))
                         : ListView.builder(
                             itemCount: _tasks.length,
@@ -132,7 +132,7 @@ class _HomeViewState extends State<HomeView> {
         },
       ),
       bottomNavigationBar:
-          _buildBottomNavigationBar(context, 0), // SỬA HIGHLIGHT (index 0)
+          _buildBottomNavigationBar(context, 0), 
       floatingActionButton: SizedBox(
         width: 100,
         height: 100,
@@ -261,13 +261,13 @@ class _HomeViewState extends State<HomeView> {
           child: Container(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: isDarkMode ? Colors.grey[800] : Colors.white, // Nền
+              color: isDarkMode ? Colors.grey[800] : Colors.white, 
               borderRadius: BorderRadius.circular(15.0),
               boxShadow: [
                 BoxShadow(
                   color: isDarkMode
                       ? Colors.black.withOpacity(0.3)
-                      : Colors.grey.withOpacity(0.1), // Đổ bóng
+                      : Colors.grey.withOpacity(0.1), 
                   spreadRadius: 1,
                   blurRadius: 5,
                   offset: const Offset(0, 3),
@@ -279,7 +279,7 @@ class _HomeViewState extends State<HomeView> {
                 Icon(Icons.task,
                     color: isDarkMode
                         ? Colors.blueAccent.shade200
-                        : Colors.blueAccent), // Icon
+                        : Colors.blueAccent), 
                 const SizedBox(width: 15),
                 Expanded(
                   child: Text(
@@ -303,7 +303,7 @@ class _HomeViewState extends State<HomeView> {
                       ? Colors.green
                       : (isDarkMode
                           ? Colors.grey[600]
-                          : Colors.grey[400]), // Icon check
+                          : Colors.grey[400]), 
                 ),
               ],
             ),
@@ -329,7 +329,7 @@ class _HomeViewState extends State<HomeView> {
                     Icons.home,
                     color: selectedIndex == 0
                         ? Colors.blueAccent
-                        : Theme.of(context).iconTheme.color, // Sửa màu
+                        : Theme.of(context).iconTheme.color, 
                   ),
                   iconSize: 30.0,
                   onPressed: () {},
@@ -340,7 +340,7 @@ class _HomeViewState extends State<HomeView> {
                     Icons.folder,
                     color: selectedIndex == 1
                         ? Colors.blueAccent
-                        : Theme.of(context).iconTheme.color, // Sửa màu
+                        : Theme.of(context).iconTheme.color, 
                   ),
                   iconSize: 30.0,
                   onPressed: () {
@@ -363,7 +363,7 @@ class _HomeViewState extends State<HomeView> {
                     Icons.calendar_today,
                     color: selectedIndex == 2
                         ? Colors.blueAccent
-                        : Theme.of(context).iconTheme.color, // Sửa màu
+                        : Theme.of(context).iconTheme.color, 
                   ),
                   iconSize: 30.0,
                   onPressed: () {
@@ -383,7 +383,7 @@ class _HomeViewState extends State<HomeView> {
                     Icons.settings,
                     color: selectedIndex == 3
                         ? Colors.blueAccent
-                        : Theme.of(context).iconTheme.color, // Sửa màu
+                        : Theme.of(context).iconTheme.color, 
                   ),
                   iconSize: 30.0,
                   onPressed: () {

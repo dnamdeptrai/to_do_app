@@ -156,7 +156,7 @@ class _SettingsScreenState extends State<SettingsView> {
                 color: selectedIndex == 3 ? Colors.blueAccent : null,
               ),
               iconSize: 30.0,
-              onPressed: () {}, // Đang ở Settings, không cần điều hướng
+              onPressed: () {}, 
             ),
           ],
         ),

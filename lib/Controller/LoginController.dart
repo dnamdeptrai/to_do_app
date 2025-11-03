@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:to_do_app/Model/UserDatabase.dart';
 import 'package:to_do_app/View/HomeView.dart';
 import 'package:to_do_app/main.dart';
-import 'NotificationsController.dart';
 
 class LoginController {
   final TextEditingController emailCtl;
@@ -85,9 +84,7 @@ class LoginController {
       );
       return;
     }
-    //await NotificationsController().cancelAllNotifications(); 
-    //await NotificationsController().scheduleDailyNotifications(email); 
-    
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => HomeView(userEmail: email)),

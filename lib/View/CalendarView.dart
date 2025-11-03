@@ -107,7 +107,7 @@ class _CalendarViewState extends State<CalendarView> {
       headerStyle: HeaderStyle(
         formatButtonVisible: false,
         titleCentered: true,
-        titleTextStyle: theme.textTheme.titleMedium ?? TextStyle(), // Màu chữ từ theme
+        titleTextStyle: theme.textTheme.titleMedium ?? TextStyle(), 
       ),
 
       calendarStyle: CalendarStyle(
@@ -168,13 +168,13 @@ class _CalendarViewState extends State<CalendarView> {
                         itemCount: _dailyTasks.length,
                         itemBuilder: (context, index) {
                           final task = _dailyTasks[index];
-                          return _buildTaskItem(context, task); // Truyền context
+                          return _buildTaskItem(context, task); 
                         },
                       ),
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context, 2), // SỬA HIGHLIGHT (index 2)
+      bottomNavigationBar: _buildBottomNavigationBar(context, 2), 
     );
   }
 
@@ -187,7 +187,7 @@ class _CalendarViewState extends State<CalendarView> {
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: isDarkMode ? Colors.grey[800] : Colors.white, // Nền
+        color: isDarkMode ? Colors.grey[800] : Colors.white,
         borderRadius: BorderRadius.circular(15.0),
         boxShadow: [
           BoxShadow(
@@ -211,7 +211,7 @@ class _CalendarViewState extends State<CalendarView> {
                     decoration: isDone
                         ? TextDecoration.lineThrough
                         : null,
-                    color: isDone // Màu chữ
+                    color: isDone 
                         ? (isDarkMode ? Colors.white54 : Colors.grey)
                         : (isDarkMode ? Colors.white : Colors.black),
                   ),
@@ -223,7 +223,7 @@ class _CalendarViewState extends State<CalendarView> {
                       task['note'],
                       style: TextStyle(
                         fontSize: 10, 
-                        color: isDarkMode ? Colors.white60 : Colors.grey[600] // Màu chữ note
+                        color: isDarkMode ? Colors.white60 : Colors.grey[600] 
                       ),
                     ),
                   ),
@@ -232,7 +232,7 @@ class _CalendarViewState extends State<CalendarView> {
           ),
           Icon(
             isDone ? Icons.check_circle : Icons.circle_outlined,
-            color: isDone ? Colors.green : (isDarkMode ? Colors.grey[600] : Colors.grey[400]), // Màu icon check
+            color: isDone ? Colors.green : (isDarkMode ? Colors.grey[600] : Colors.grey[400]), 
           ),
         ],
       ),
@@ -285,7 +285,7 @@ class _CalendarViewState extends State<CalendarView> {
               color: selectedIndex == 2 ? Colors.blueAccent : Theme.of(context).iconTheme.color,
             ),
             iconSize: 30.0,
-            onPressed: () {}, // Đang ở Calendar
+            onPressed: () {}, 
           ),
           IconButton(
             icon: Icon(

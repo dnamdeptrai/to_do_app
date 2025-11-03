@@ -9,7 +9,6 @@ class SignInView extends StatefulWidget {
 }
 
 class _SignInViewState extends State<SignInView> {
-  
   final emailCtl = TextEditingController();
   final phoneCtl = TextEditingController();
   final passwordCtl = TextEditingController();
@@ -61,7 +60,8 @@ class _SignInViewState extends State<SignInView> {
                   color: Color.fromARGB(255, 0, 95, 49),
                 ),
               ),
-              const Text("Create your account and start organizing your tasks."),
+              const Text(
+                  "Create your account and start organizing your tasks."),
               const SizedBox(height: 5),
               TextField(
                 controller: emailCtl,
@@ -101,7 +101,6 @@ class _SignInViewState extends State<SignInView> {
                 ),
               ),
               const SizedBox(height: 30),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

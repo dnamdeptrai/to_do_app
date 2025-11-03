@@ -3,7 +3,7 @@ import '../Controller/CategoryController.dart';
 import '../View/HomeView.dart';
 import '../View/SettingView.dart';
 import '../View/CalendarView.dart';
-import '../View/ProfileDrawerView.dart'; // Đảm bảo import này đã có
+import '../View/ProfileDrawerView.dart'; 
 
 class CategoryView extends StatefulWidget {
   final String userEmail;
@@ -52,8 +52,6 @@ class _CategoryViewState extends State<CategoryView> {
 
   Future<void> _toggleTask(Map<String, dynamic> task) async {
     await _controller.toggleTaskCompletion(task);
-    
-    // Tải lại và lọc task sau khi thay đổi trạng thái
     await _loadTasksAndProgress();
     _controller.filterTasks(_searchCtl.text);
     
@@ -64,22 +62,21 @@ class _CategoryViewState extends State<CategoryView> {
     }
   }
 
-  // SỬA LỖI 2: Bấm được CircleAvatar
-  Widget _buildHeader(BuildContext context, String userEmail) { // Thêm BuildContext
+  Widget _buildHeader(BuildContext context, String userEmail) { 
     final String firstLetter = userEmail.isNotEmpty ? userEmail[0].toUpperCase() : "?";
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text( // Đảm bảo Text sử dụng màu từ theme
+        Text( 
           "Phân loại",
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
             fontSize: 32,
           ),
         ),
-        GestureDetector( // Bọc CircleAvatar bằng GestureDetector
+        GestureDetector( 
           onTap: () {
-            Scaffold.of(context).openEndDrawer(); // Mở EndDrawer
+            Scaffold.of(context).openEndDrawer(); 
           },
           child: CircleAvatar(
             radius: 20,
@@ -89,7 +86,7 @@ class _CategoryViewState extends State<CategoryView> {
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.white, // Luôn trắng để nổi bật
+                color: Colors.white, 
               ),
             ),
           ),
@@ -98,7 +95,7 @@ class _CategoryViewState extends State<CategoryView> {
     );
   }
 
-  Widget _buildDateAndProgress(BuildContext context) { // Thêm BuildContext
+  Widget _buildDateAndProgress(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -118,9 +115,7 @@ class _CategoryViewState extends State<CategoryView> {
       ],
     );
   }
-
-  // SỬA LỖI 3: Dark Mode cho Task Item (Card) và màu chữ
-  Widget _buildTaskItem(BuildContext context, Map<String, dynamic> task) { // Thêm BuildContext
+  Widget _buildTaskItem(BuildContext context, Map<String, dynamic> task) { 
     final isDone = task["isDone"] == 1;
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
@@ -131,8 +126,7 @@ class _CategoryViewState extends State<CategoryView> {
         margin: const EdgeInsets.symmetric(vertical: 4.0),
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          // Dùng màu từ theme hoặc màu tùy chỉnh nhưng vẫn theo theme
-          color: isDarkMode ? Colors.grey[800] : Colors.white, // Màu nền của từng task
+          color: isDarkMode ? Colors.grey[800] : Colors.white, 
           borderRadius: BorderRadius.circular(15.0),
           boxShadow: [
             BoxShadow(
@@ -147,7 +141,7 @@ class _CategoryViewState extends State<CategoryView> {
           children: [
             Icon(
               Icons.task,
-              color: isDarkMode ? Colors.blueAccent.shade200 : Colors.blueAccent, // Màu icon theo theme
+              color: isDarkMode ? Colors.blueAccent.shade200 : Colors.blueAccent, 
             ),
             const SizedBox(width: 15),
             Expanded(
@@ -156,7 +150,6 @@ class _CategoryViewState extends State<CategoryView> {
                 style: TextStyle(
                   fontSize: 16,
                   decoration: isDone ? TextDecoration.lineThrough : null,
-                  // Màu chữ phụ thuộc vào trạng thái và theme
                   color: isDone 
                       ? (isDarkMode ? Colors.white54 : Colors.grey) 
                       : (isDarkMode ? Colors.white : Colors.black),
@@ -167,7 +160,7 @@ class _CategoryViewState extends State<CategoryView> {
               isDone
                   ? Icons.check_circle 
                   : Icons.circle_outlined, 
-              color: isDone ? Colors.green : (isDarkMode ? Colors.grey[600] : Colors.grey[400]), // Màu icon hoàn thành
+              color: isDone ? Colors.green : (isDarkMode ? Colors.grey[600] : Colors.grey[400]), 
             ),
           ],
         ),
@@ -175,7 +168,6 @@ class _CategoryViewState extends State<CategoryView> {
     );
   }
 
-  // SỬA LỖI 1: BottomAppBar highlight đúng
   Widget _buildBottomNavigationBar(BuildContext context, int selectedIndex) {
     return BottomAppBar(
       shape: const CircularNotchedRectangle(),
@@ -188,7 +180,7 @@ class _CategoryViewState extends State<CategoryView> {
             IconButton(
               icon: Icon(
                 Icons.home,
-                color: selectedIndex == 0 ? Colors.blueAccent : Theme.of(context).iconTheme.color, // Lấy màu từ theme nếu không chọn
+                color: selectedIndex == 0 ? Colors.blueAccent : Theme.of(context).iconTheme.color, 
               ),
               iconSize: 30.0,
               onPressed: () {
@@ -205,16 +197,16 @@ class _CategoryViewState extends State<CategoryView> {
             IconButton(
               icon: Icon(
                 Icons.folder,
-                color: selectedIndex == 1 ? Colors.blueAccent : Theme.of(context).iconTheme.color, // Lấy màu từ theme nếu không chọn
+                color: selectedIndex == 1 ? Colors.blueAccent : Theme.of(context).iconTheme.color, 
               ),
               iconSize: 30.0,
-              onPressed: () {}, // Đang ở Category, không cần điều hướng
+              onPressed: () {}, 
             ),
 
             IconButton(
               icon: Icon(
                 Icons.calendar_today,
-                color: selectedIndex == 2 ? Colors.blueAccent : Theme.of(context).iconTheme.color, // Lấy màu từ theme nếu không chọn
+                color: selectedIndex == 2 ? Colors.blueAccent : Theme.of(context).iconTheme.color, 
               ),
               iconSize: 30.0,
               onPressed: () {
@@ -232,7 +224,7 @@ class _CategoryViewState extends State<CategoryView> {
             IconButton(
               icon: Icon(
                 Icons.settings,
-                color: selectedIndex == 3 ? Colors.blueAccent : Theme.of(context).iconTheme.color, // Lấy màu từ theme nếu không chọn
+                color: selectedIndex == 3 ? Colors.blueAccent : Theme.of(context).iconTheme.color, 
               ),
               iconSize: 30.0,
               onPressed: () {
@@ -258,8 +250,8 @@ class _CategoryViewState extends State<CategoryView> {
     final isDarkMode = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor, // SỬA LỖI 3: Dùng màu nền từ theme
-      endDrawer: ProfileDrawerView(userEmail: widget.userEmail), // Đảm bảo EndDrawer đã có
+      backgroundColor: theme.scaffoldBackgroundColor,
+      endDrawer: ProfileDrawerView(userEmail: widget.userEmail), 
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -267,21 +259,20 @@ class _CategoryViewState extends State<CategoryView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              _buildHeader(context, widget.userEmail), // Truyền context
+              _buildHeader(context, widget.userEmail), 
               const SizedBox(height: 10),
-              _buildDateAndProgress(context), // Truyền context
-
+              _buildDateAndProgress(context), 
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12.0),
                 child: TextField(
                   controller: _searchCtl,
                   decoration: InputDecoration(
                     hintText: "Tìm kiếm task...",
-                    hintStyle: TextStyle(color: isDarkMode ? Colors.white54 : Colors.grey), // Màu hint text theo theme
-                    prefixIcon: Icon(Icons.search, color: isDarkMode ? Colors.white70 : Colors.grey), // Màu icon theo theme
+                    hintStyle: TextStyle(color: isDarkMode ? Colors.white54 : Colors.grey), 
+                    prefixIcon: Icon(Icons.search, color: isDarkMode ? Colors.white70 : Colors.grey), 
                     suffixIcon: _searchCtl.text.isNotEmpty
                         ? IconButton(
-                            icon: Icon(Icons.clear, color: isDarkMode ? Colors.white70 : Colors.grey), // Màu icon theo theme
+                            icon: Icon(Icons.clear, color: isDarkMode ? Colors.white70 : Colors.grey), 
                             onPressed: () {
                               _searchCtl.clear();
                             },
@@ -292,10 +283,10 @@ class _CategoryViewState extends State<CategoryView> {
                       borderSide: BorderSide.none,
                     ),
                     filled: true,
-                    fillColor: isDarkMode ? Colors.grey[800] : Colors.white, // Màu nền TextField theo theme
+                    fillColor: isDarkMode ? Colors.grey[800] : Colors.white, 
                     contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
                   ),
-                  style: TextStyle(color: isDarkMode ? Colors.white : Colors.black), // Màu chữ nhập vào theo theme
+                  style: TextStyle(color: isDarkMode ? Colors.white : Colors.black), 
                 ),
               ),
 
@@ -346,15 +337,14 @@ class _CategoryViewState extends State<CategoryView> {
                               ),
                               child: Text(
                                 "$category:",
-                                style: theme.textTheme.titleMedium?.copyWith( // Màu chữ tiêu đề danh mục theo theme
+                                style: theme.textTheme.titleMedium?.copyWith( 
                                   fontWeight: FontWeight.bold,
                                   color: isDarkMode ? Colors.white : Colors.black87,
                                 ),
                               ),
                             ),
                             ...tasks
-                                .map((task) => _buildTaskItem(context, task)) // Truyền context
-                                .toList(),
+                                .map((task) => _buildTaskItem(context, task)) 
                           ],
                         );
                       },
