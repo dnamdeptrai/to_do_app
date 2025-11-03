@@ -4,7 +4,8 @@ import '../Controller/HomeController.dart';
 import '../View/SettingView.dart';
 import '../View/CalendarView.dart';
 import '../View/CategoryView.dart';
-import '../View/ProfileDrawerView.dart'; // <-- THÊM IMPORT NÀY
+import '../View/ProfileDrawerView.dart';
+import '../Controller/NotificationsController.dart';
 
 class HomeView extends StatefulWidget {
   final String userEmail;
@@ -23,11 +24,18 @@ class _HomeViewState extends State<HomeView> {
     super.initState();
     _controller = HomeController(userEmail: widget.userEmail);
     _loadTasks();
-    _requestNotificationPermissions(); // Hàm này từ bước tối ưu khởi động
+    _requestNotificationPermissions();
   }
 
   Future<void> _requestNotificationPermissions() async {
-    // (Hàm này giữ nguyên)
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    bool hasPermission = await NotificationsController().requestPermissions();
+    if (hasPermission) {
+      await NotificationsController().cancelAllNotifications();
+      await NotificationsController()
+          .scheduleDailyNotifications(widget.userEmail);
+    }
   }
 
   Future<void> _loadTasks() async {
@@ -45,7 +53,6 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _showDeleteConfirmDialog(Map<String, dynamic> task) async {
-    // ... (Hàm này giữ nguyên, nó sẽ tự đổi màu theo theme)
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -81,21 +88,15 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-    // Lấy theme hiện tại
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor, // SỬA DARK MODE
-      
-      // THÊM EndDrawer
+      backgroundColor: theme.scaffoldBackgroundColor,
       endDrawer: ProfileDrawerView(userEmail: widget.userEmail),
-
-      // BỌC body bằng Builder để lấy đúng context cho EndDrawer
       body: Builder(
-        builder: (BuildContext bodyContext) { // 'bodyContext' là context BÊN TRONG Scaffold
+        builder: (BuildContext bodyContext) {
           return SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -103,23 +104,24 @@ class _HomeViewState extends State<HomeView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  // Truyền bodyContext và userEmail vào
-                  _buildHeader(bodyContext, widget.userEmail), 
+                  _buildHeader(bodyContext, widget.userEmail),
                   const SizedBox(height: 10),
-                  _buildDateAndProgress(context), // Truyền context
+                  _buildDateAndProgress(context),
                   const SizedBox(height: 20),
                   Expanded(
                     child: _tasks.isEmpty
-                        ? Center(child: Text(
+                        ? Center(
+                            child: Text(
                             "Chưa có công việc",
-                            style: TextStyle(color: theme.textTheme.bodySmall?.color), // SỬA DARK MODE
+                            style: TextStyle(
+                                color: theme.textTheme.bodySmall
+                                    ?.color), // SỬA DARK MODE
                           ))
                         : ListView.builder(
                             itemCount: _tasks.length,
                             itemBuilder: (context, index) {
                               final task = _tasks[index];
-                              // Truyền context vào
-                              return _buildTaskItem(context, task); 
+                              return _buildTaskItem(context, task);
                             },
                           ),
                   ),
@@ -129,7 +131,8 @@ class _HomeViewState extends State<HomeView> {
           );
         },
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context, 0), // SỬA HIGHLIGHT (index 0)
+      bottomNavigationBar:
+          _buildBottomNavigationBar(context, 0), // SỬA HIGHLIGHT (index 0)
       floatingActionButton: SizedBox(
         width: 100,
         height: 100,
@@ -140,8 +143,9 @@ class _HomeViewState extends State<HomeView> {
           backgroundColor: const Color(0xFF0051DC),
           shape: CircleBorder(
             side: BorderSide(
-              // SỬA DARK MODE: Màu viền trắng/đen
-              color: theme.brightness == Brightness.dark ? Colors.black : Colors.white,
+              color: theme.brightness == Brightness.dark
+                  ? Colors.black
+                  : Colors.white,
               width: 9,
             ),
           ),
@@ -153,7 +157,8 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildHeader(BuildContext context, String userEmail) {
-    final String firstLetter = userEmail.isNotEmpty ? userEmail[0].toUpperCase() : "?";
+    final String firstLetter =
+        userEmail.isNotEmpty ? userEmail[0].toUpperCase() : "?";
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -165,9 +170,9 @@ class _HomeViewState extends State<HomeView> {
                 fontSize: 32,
               ),
         ),
-        GestureDetector( 
+        GestureDetector(
           onTap: () {
-            Scaffold.of(context).openEndDrawer(); 
+            Scaffold.of(context).openEndDrawer();
           },
           child: CircleAvatar(
             radius: 20,
@@ -188,21 +193,25 @@ class _HomeViewState extends State<HomeView> {
 
   Widget _buildDateAndProgress(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           _controller.getFormattedDate(),
           style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.brightness == Brightness.dark ? Colors.white70 : Colors.grey[700],
+            color: theme.brightness == Brightness.dark
+                ? Colors.white70
+                : Colors.grey[700],
           ),
         ),
         const SizedBox(height: 4),
         Text(
           _controller.getProgressText(_tasks),
           style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.brightness == Brightness.dark ? Colors.white60 : Colors.grey[600],
+            color: theme.brightness == Brightness.dark
+                ? Colors.white60
+                : Colors.grey[600],
           ),
         ),
       ],
@@ -256,7 +265,9 @@ class _HomeViewState extends State<HomeView> {
               borderRadius: BorderRadius.circular(15.0),
               boxShadow: [
                 BoxShadow(
-                  color: isDarkMode ? Colors.black.withOpacity(0.3) : Colors.grey.withOpacity(0.1), // Đổ bóng
+                  color: isDarkMode
+                      ? Colors.black.withOpacity(0.3)
+                      : Colors.grey.withOpacity(0.1), // Đổ bóng
                   spreadRadius: 1,
                   blurRadius: 5,
                   offset: const Offset(0, 3),
@@ -265,7 +276,10 @@ class _HomeViewState extends State<HomeView> {
             ),
             child: Row(
               children: [
-                Icon(Icons.task, color: isDarkMode ? Colors.blueAccent.shade200 : Colors.blueAccent), // Icon
+                Icon(Icons.task,
+                    color: isDarkMode
+                        ? Colors.blueAccent.shade200
+                        : Colors.blueAccent), // Icon
                 const SizedBox(width: 15),
                 Expanded(
                   child: Text(
@@ -275,7 +289,7 @@ class _HomeViewState extends State<HomeView> {
                       decoration: (task["isDone"] == 1)
                           ? TextDecoration.lineThrough
                           : null,
-                      color: isDone // Màu chữ
+                      color: isDone
                           ? (isDarkMode ? Colors.white54 : Colors.grey)
                           : (isDarkMode ? Colors.white : Colors.black),
                     ),
@@ -285,7 +299,11 @@ class _HomeViewState extends State<HomeView> {
                   (task["isDone"] == 1)
                       ? Icons.check_circle
                       : Icons.circle_outlined,
-                  color: isDone ? Colors.green : (isDarkMode ? Colors.grey[600] : Colors.grey[400]), // Icon check
+                  color: isDone
+                      ? Colors.green
+                      : (isDarkMode
+                          ? Colors.grey[600]
+                          : Colors.grey[400]), // Icon check
                 ),
               ],
             ),
@@ -309,16 +327,20 @@ class _HomeViewState extends State<HomeView> {
                 IconButton(
                   icon: Icon(
                     Icons.home,
-                    color: selectedIndex == 0 ? Colors.blueAccent : Theme.of(context).iconTheme.color, // Sửa màu
+                    color: selectedIndex == 0
+                        ? Colors.blueAccent
+                        : Theme.of(context).iconTheme.color, // Sửa màu
                   ),
                   iconSize: 30.0,
-                  onPressed: () {}, 
+                  onPressed: () {},
                 ),
                 const SizedBox(width: 30),
                 IconButton(
                   icon: Icon(
                     Icons.folder,
-                    color: selectedIndex == 1 ? Colors.blueAccent : Theme.of(context).iconTheme.color, // Sửa màu
+                    color: selectedIndex == 1
+                        ? Colors.blueAccent
+                        : Theme.of(context).iconTheme.color, // Sửa màu
                   ),
                   iconSize: 30.0,
                   onPressed: () {
@@ -339,7 +361,9 @@ class _HomeViewState extends State<HomeView> {
                 IconButton(
                   icon: Icon(
                     Icons.calendar_today,
-                    color: selectedIndex == 2 ? Colors.blueAccent : Theme.of(context).iconTheme.color, // Sửa màu
+                    color: selectedIndex == 2
+                        ? Colors.blueAccent
+                        : Theme.of(context).iconTheme.color, // Sửa màu
                   ),
                   iconSize: 30.0,
                   onPressed: () {
@@ -357,7 +381,9 @@ class _HomeViewState extends State<HomeView> {
                 IconButton(
                   icon: Icon(
                     Icons.settings,
-                    color: selectedIndex == 3 ? Colors.blueAccent : Theme.of(context).iconTheme.color, // Sửa màu
+                    color: selectedIndex == 3
+                        ? Colors.blueAccent
+                        : Theme.of(context).iconTheme.color, // Sửa màu
                   ),
                   iconSize: 30.0,
                   onPressed: () {

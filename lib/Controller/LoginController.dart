@@ -85,8 +85,8 @@ class LoginController {
       );
       return;
     }
-    await NotificationsController().cancelAllNotifications(); 
-    await NotificationsController().scheduleDailyNotifications(email); 
+    //await NotificationsController().cancelAllNotifications(); 
+    //await NotificationsController().scheduleDailyNotifications(email); 
     
     Navigator.pushReplacement(
       context,

@@ -39,22 +39,20 @@ class NotificationsController {
     await _plugin.initialize(settings);
   }
 
-  Future<void> requestPermissions() async {
+  Future<bool> requestPermissions() async {
+    bool? granted = false;
     if (Platform.isIOS || Platform.isMacOS) {
-      await _plugin
+      granted = await _plugin
           .resolvePlatformSpecificImplementation<
               IOSFlutterLocalNotificationsPlugin>()
-          ?.requestPermissions(alert: true, badge: true, sound: true);
-
-      await _plugin
-          .resolvePlatformSpecificImplementation<
-              MacOSFlutterLocalNotificationsPlugin>()
           ?.requestPermissions(alert: true, badge: true, sound: true);
     } else if (Platform.isAndroid) {
       final androidImpl = _plugin.resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin>();
-      await androidImpl?.requestNotificationsPermission();
+
+      granted = await androidImpl?.requestNotificationsPermission();
     }
+    return granted ?? false;
   }
 
   Future<void> _scheduleNotification(
