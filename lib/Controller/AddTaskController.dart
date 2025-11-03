@@ -107,7 +107,7 @@ class AddTaskController {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
                 content: Text(
-                    "Đã lưu task, nhưng giờ thông báo ở quá khứ nên đã bỏ qua.")),
+                    "Đã lưu task, bro bắt tôi quay về quá khứ nhắc thật à?.")),
           );
         }
       }

@@ -34,9 +34,19 @@ class HomeController {
   Future<void> deleteTask(Map<String, dynamic> task) async {
     int id = task['id'];
     if (task['priority'] == 1) {
-      await NotificationsController().cancelNotification(id);
+      try {
+        await NotificationsController().cancelNotification(id);
+      } catch (e) {
+        print("Lỗi khi cố gắng hủy thông báo (task $id): $e");
+      }
     }
-    await TaskDatabase.instance.deleteTask(id);
+    try {
+      await TaskDatabase.instance.deleteTask(id);
+      print("Xoá thành công.");
+    } catch (dbError) {
+      print("xoá không thành công");
+      throw dbError;
+    }
   }
 
   Future<void> openEditTaskView(
